@@ -1,0 +1,2 @@
+rootProject.name = 'altia-eudistack-issuer-backend'
+include('altia-eudistack-issuer-enterprise-backend')
