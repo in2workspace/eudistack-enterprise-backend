@@ -1,0 +1,3 @@
+[submodule "altia-eudistack-issuer-core-backend"]
+	path = altia-eudistack-issuer-core-backend
+	url = https://github.com/in2workspace/altia-eudistack-issuer-core-backend.git
