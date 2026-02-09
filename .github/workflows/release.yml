@@ -65,7 +65,7 @@ jobs:
           ECR_REPOSITORY_ENTERPRISE="${ECR_REPOSITORY}-enterprise"
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:${TAG}"
 
-          docker build -f altia-eudistack-issuer-core-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
+          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
           docker tag "${ECR_IMAGE}"
           
           docker push "${ECR_IMAGE}"
@@ -116,7 +116,7 @@ jobs:
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:${TAG}"
           ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:latest"
           
-          docker build -f altia-eudistack-issuer-core-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
+          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
           docker tag "${ECR_IMAGE}"
           docker tag "${ECR_LATEST}"
 
