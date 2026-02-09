@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,4 +29,4 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build
-        run: ./gradlew clean build --info
+        run: ./gradlew build --info
