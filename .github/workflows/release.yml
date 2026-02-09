@@ -117,8 +117,8 @@ jobs:
           ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:latest"
           
           docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend
-          docker tag "${ECR_IMAGE}"
-          docker tag "${ECR_LATEST}"
+
+          docker tag "${ECR_IMAGE}" "${ECR_LATEST}"
 
           docker push "${ECR_IMAGE}"
           docker push "${ECR_LATEST}"
