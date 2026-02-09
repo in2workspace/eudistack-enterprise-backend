@@ -41,9 +41,6 @@ jobs:
       - name: Compute PR-based snapshot suffix
         run: echo "SNAPSHOT_SUFFIX=-pr-${{ github.event.number }}" >> $GITHUB_ENV
 
-      - name: Compute image name
-        run: echo "IMAGE_NAME=${{ github.event.repository.name }}-backend" >> $GITHUB_ENV
-
       # Logins
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,12 +57,13 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
           SNAPSHOT_SUFFIX: ${{ env.SNAPSHOT_SUFFIX }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           set -euo pipefail
           TAG="v${VERSION}${SNAPSHOT_SUFFIX}"
-          ECR_IMAGE="${ECR_REGISTRY}/${IMAGE_NAME}:${TAG}"
+          ECR_REPOSITORY_ENTERPRISE="${ECR_REPOSITORY}-enterprise"
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:${TAG}"
 
           docker build -f Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
           docker tag "${ECR_IMAGE}"
@@ -93,10 +91,6 @@ jobs:
       - name: Extract version from tag
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
-      - name: Compute image name
-        run: echo "IMAGE_NAME=${{ github.event.repository.name }}-backend" >> $GITHUB_ENV
-
-
       # Logins
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -112,14 +106,15 @@ jobs:
       - name: Build and Push docker image (ECR)
         env:
           VERSION: ${{ env.VERSION }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
           set -euo pipefail
-          TAG="v${VERSION}"
+          TAG="v${VERSION}"          
           
-          ECR_IMAGE="${ECR_REGISTRY}/${IMAGE_NAME}:${TAG}"
-          ECR_LATEST="${ECR_REGISTRY}/${IMAGE_NAME}:latest"
+          ECR_REPOSITORY_ENTERPRISE="${ECR_REPOSITORY}-enterprise"          
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:${TAG}"
+          ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY_ENTERPRISE}:latest"
           
           docker build -f Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" .
           docker tag "${ECR_IMAGE}"
