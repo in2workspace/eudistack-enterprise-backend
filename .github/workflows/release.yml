@@ -33,9 +33,11 @@ jobs:
           cache: 'gradle'
 
       - name: Make Gradlew Executable
+        working-directory: altia-eudistack-issuer-enterprise-backend
         run: chmod +x ./gradlew
 
       - name: Get Project Version
+        working-directory: altia-eudistack-issuer-enterprise-backend
         run: echo "VERSION=$(./gradlew -q properties | grep '^version:' | awk '{print $2}')" >> $GITHUB_ENV
 
       - name: Compute PR-based snapshot suffix
@@ -83,6 +85,7 @@ jobs:
           cache: 'gradle'
 
       - name: Make Gradlew Executable
+        working-directory: altia-eudistack-issuer-enterprise-backend
         run: chmod +x ./gradlew
 
       - name: Extract version from tag
