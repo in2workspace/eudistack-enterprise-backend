@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-snapshot:
+    if: github.event_name == 'pull_request'
+    name: Release Snapshot
+    concurrency:
+      group: docker-${{ github.head_ref || github.ref_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'gradle'
+
+      - name: Make Gradlew Executable
+        working-directory: altia-eudistack-issuer-enterprise-backend
+        run: chmod +x ./gradlew
+
+      - name: Get Project Version
+        working-directory: altia-eudistack-issuer-enterprise-backend
+        run: echo "VERSION=$(./gradlew -q properties | grep '^version:' | awk '{print $2}')" >> $GITHUB_ENV
+
+      - name: Compute PR-based snapshot suffix
+        run: echo "SNAPSHOT_SUFFIX=-pr-${{ github.event.number }}" >> $GITHUB_ENV
+
+      # Logins
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push docker image (ECR)
+        env:
+          VERSION: ${{ env.VERSION }}
+          SNAPSHOT_SUFFIX: ${{ env.SNAPSHOT_SUFFIX }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}${SNAPSHOT_SUFFIX}-enterprise"
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}"
+
+          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend         
+          docker push "${ECR_IMAGE}"
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'gradle'
+
+      - name: Make Gradlew Executable
+        working-directory: altia-eudistack-issuer-enterprise-backend
+        run: chmod +x ./gradlew
+
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      # Logins
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push docker image (ECR)
+        env:
+          VERSION: ${{ env.VERSION }}
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}-enterprise"          
+              
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}"
+          ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest-enterprise"
+          
+          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend
+
+          docker tag "${ECR_IMAGE}" "${ECR_LATEST}"
+
+          docker push "${ECR_IMAGE}"
+          docker push "${ECR_LATEST}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          name: "v${{ env.VERSION }}"
+          generate_release_notes: true
