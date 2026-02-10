@@ -1,2 +1,3 @@
 rootProject.name = 'altia-eudistack-issuer-backend'
-include('altia-eudistack-issuer-enterprise-backend', 'altia-eudistack-issuer-core-backend')
+includeBuild('altia-eudistack-issuer-enterprise-backend')
+includeBuild('altia-eudistack-issuer-core-backend')
