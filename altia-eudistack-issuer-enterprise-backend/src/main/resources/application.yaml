@@ -1,3 +1,7 @@
 spring:
   application:
     name: altia-eudistack-issuer-enterprise-backend
+management:
+  tracing:
+    sampling:
+      probability: 1.0
