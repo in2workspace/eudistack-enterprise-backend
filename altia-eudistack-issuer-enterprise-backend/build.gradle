@@ -44,6 +44,24 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 }
 
-tasks.named('test') {
+tasks.named('test', Test) {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
+
+tasks.named('jacocoTestReport', JacocoReport) {
+    dependsOn tasks.test
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: [
+                "**/*Application.class"
+        ])
+    }))
+}
+
