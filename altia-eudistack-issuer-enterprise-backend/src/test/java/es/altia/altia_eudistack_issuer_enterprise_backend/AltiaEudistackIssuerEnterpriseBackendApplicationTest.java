@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class AltiaEudistackIssuerEnterpriseBackendApplicationTest {
 
-    @SuppressWarnings("EmptyMethod")
     @Test
+    @SuppressWarnings("EmptyMethod")
     void contextLoads() {
     }
 
