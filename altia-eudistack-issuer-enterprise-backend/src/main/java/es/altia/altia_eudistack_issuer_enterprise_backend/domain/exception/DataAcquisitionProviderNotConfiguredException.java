@@ -1,0 +1,13 @@
+package es.altia.altia_eudistack_issuer_enterprise_backend.domain.exception;
+
+import java.io.Serial;
+
+public class DataAcquisitionProviderNotConfiguredException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    public DataAcquisitionProviderNotConfiguredException(String message) {
+        super(message);
+    }
+}

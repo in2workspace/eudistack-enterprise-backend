@@ -1,6 +1,6 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.authentic_source.AuthenticSourceIssuanceAuthenticationFilter;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionAuthenticationFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.AUTHENTIC_SOURCE_ISSUANCE_PATH_POST_PATTERN;
+import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH_POST_PATTERN;
 import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.HEALTH_PATH_GET_PATTERN;
 
 @Slf4j
@@ -22,17 +22,17 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain authenticSourceIssuanceSecurityFilterChain(
+    public SecurityFilterChain dataAcquisitionSecurityFilterChain(
             HttpSecurity http,
-            AuthenticSourceIssuanceAuthenticationFilter authenticationFilter) throws Exception {
+            DataAcquisitionAuthenticationFilter authenticationFilter) throws Exception {
         return baseStatelessConfig(http)
-                .securityMatcher(AUTHENTIC_SOURCE_ISSUANCE_PATH_POST_PATTERN)
+                .securityMatcher(DATA_ACQUISITION_PATH_POST_PATTERN)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTHENTIC_SOURCE_ISSUANCE_PATH_POST_PATTERN).authenticated()
+                        .requestMatchers(DATA_ACQUISITION_PATH_POST_PATTERN).authenticated()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(
-                        new SecurityChainLoggingFilter("authenticSourceIssuanceSecurityFilterChain [1]"),
+                        new SecurityChainLoggingFilter("dataAcquisitionSecurityFilterChain [1]"),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .addFilterBefore(

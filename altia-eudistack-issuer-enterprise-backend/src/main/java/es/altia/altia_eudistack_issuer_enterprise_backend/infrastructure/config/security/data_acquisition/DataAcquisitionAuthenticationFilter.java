@@ -1,4 +1,4 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.authentic_source;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +8,9 @@ import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Slf4j
-public class AuthenticSourceIssuanceAuthenticationFilter extends AuthenticationFilter {
+public class DataAcquisitionAuthenticationFilter extends AuthenticationFilter {
 
-    public AuthenticSourceIssuanceAuthenticationFilter(
+    public DataAcquisitionAuthenticationFilter(
             AuthenticationManager authenticationManager,
             AuthenticationConverter authenticationConverter,
             RequestMatcher requestMatcher

@@ -1,4 +1,4 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.authentic_source;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition;
 
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +11,11 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import java.util.List;
 
 @Slf4j
-public class AuthenticSourceIssuanceAuthenticationProvider
+public class DataAcquisitionIssuanceAuthenticationProvider
         implements AuthenticationProvider {
 
     // TODO Replace by real JWT validation and claims extraction
-    private static final String TEMP_VALID_PREFIX = "eyj";
+    private static final String TEMP_VALID_PREFIX = "eyJ";
 
     @Override
     public Authentication authenticate(Authentication authentication)

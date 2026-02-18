@@ -6,13 +6,13 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 public class EndpointConstants {
 
     @SuppressWarnings("squid:S1075")
-    public static final String AUTHENTIC_SOURCE_ISSUANCE_PATH = "/api/v1/issuances/authentic-source";
+    public static final String DATA_ACQUISITION_PATH = "/procedures/acquire";
     private static final String HEALTH_PATH = "/health";
 
-    public static final PathPatternRequestMatcher AUTHENTIC_SOURCE_ISSUANCE_PATH_POST_PATTERN =
+    public static final PathPatternRequestMatcher DATA_ACQUISITION_PATH_POST_PATTERN =
             PathPatternRequestMatcher
                     .withDefaults()
-                    .matcher(HttpMethod.POST, AUTHENTIC_SOURCE_ISSUANCE_PATH);
+                    .matcher(HttpMethod.POST, DATA_ACQUISITION_PATH);
 
     public static final PathPatternRequestMatcher HEALTH_PATH_GET_PATTERN =
             PathPatternRequestMatcher
