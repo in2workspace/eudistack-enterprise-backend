@@ -5,7 +5,7 @@ logging:
   level:
     es.altia: INFO
 signing:
-  url:
+  coreUrl:
   provider: csc-sign-doc   # csc-sign-hash / csc-sign-doc / in-memory
 management:
   endpoints:
