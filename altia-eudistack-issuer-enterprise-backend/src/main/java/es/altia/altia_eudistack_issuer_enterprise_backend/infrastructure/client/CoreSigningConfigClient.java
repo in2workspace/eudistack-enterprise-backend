@@ -1,9 +1,9 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client;
 
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.SignatureConfig;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.WebClientConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -16,11 +16,10 @@ import java.util.Map;
 public class CoreSigningConfigClient {
 
     private final WebClientConfig webClient;
-
-    @Value("${core.base-url}")
-    private String coreBaseUrl;
+    private final SignatureConfig signatureConfig;
 
     public Mono<Void> pushSigningProvider(String provider) {
+        String coreBaseUrl = signatureConfig.getCoreDomain();
         log.info("Pushing signing provider '{}' to Core at {}", provider, coreBaseUrl);
 
         return webClient.commonWebClient()

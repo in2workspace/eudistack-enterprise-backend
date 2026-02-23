@@ -4,9 +4,9 @@ spring:
 logging:
   level:
     es.altia: INFO
-issuer:
-  signing:
-    provider: csc-sign-doc   # csc-sign-hash / csc-sign-doc / in-memory
+signing:
+  url:
+  provider: csc-sign-doc   # csc-sign-hash / csc-sign-doc / in-memory
 management:
   endpoints:
     enabled-by-default: false
