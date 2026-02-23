@@ -1,7 +1,7 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.adapter.ConfigAdapter;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.SignatureProperties;
+import es.in2.issuer.backend.shared.infrastructure.config.adapter.impl.YamlConfigAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SignatureConfig {
 
-    private final ConfigAdapter configAdapter;
+    private final YamlConfigAdapter configAdapter;
     private final SignatureProperties signatureProperties;
 
     public String getCoreDomain() {
