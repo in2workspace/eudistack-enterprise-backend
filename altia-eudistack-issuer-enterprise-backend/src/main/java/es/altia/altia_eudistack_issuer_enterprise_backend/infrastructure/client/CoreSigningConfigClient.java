@@ -1,6 +1,6 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client;
 
-import es.in2.issuer.backend.shared.infrastructure.config.WebClientConfig;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.WebClientConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

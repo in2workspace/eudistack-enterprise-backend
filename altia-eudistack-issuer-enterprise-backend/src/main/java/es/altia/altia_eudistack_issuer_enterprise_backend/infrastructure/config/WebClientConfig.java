@@ -1,6 +1,6 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
-import es.in2.issuer.backend.shared.infrastructure.config.AppConfig;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,6 @@ import java.time.Duration;
 @Configuration
 @RequiredArgsConstructor
 public class WebClientConfig {
-    private final AppConfig appConfig;
 
     private static final ConnectionProvider connectionProvider = ConnectionProvider.builder("custom")
             .maxConnections(500)
@@ -32,14 +31,5 @@ public class WebClientConfig {
                 .build();
     }
 
-    @Bean
-    public WebClient oauth2VerifierWebClient() {
-        return WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider)
-                        .baseUrl(appConfig.getVerifierUrl())
-                        .followRedirect(false))
-                )
-                .build();
-    }
 
 }
