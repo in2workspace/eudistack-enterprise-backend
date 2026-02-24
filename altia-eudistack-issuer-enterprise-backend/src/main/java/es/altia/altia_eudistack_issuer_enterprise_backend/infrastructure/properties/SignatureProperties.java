@@ -15,6 +15,8 @@ public record SignatureProperties(
 
     @ConstructorBinding
     public SignatureProperties(String provider, String coreUrl) {
+        System.out.println("EI");
+        System.out.println(coreUrl);
         this.provider = provider;
         this.coreUrl = coreUrl;
     }
