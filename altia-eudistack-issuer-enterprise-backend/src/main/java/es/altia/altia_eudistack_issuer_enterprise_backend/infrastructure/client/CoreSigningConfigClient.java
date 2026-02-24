@@ -15,14 +15,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CoreSigningConfigClient {
 
-    private final WebClientConfig webClient;
+    private final WebClientConfig webClientConfig;
     private final SignatureConfig signatureConfig;
 
     public Mono<Void> pushSigningProvider(String provider) {
         String coreBaseUrl = signatureConfig.getCoreDomain();
         log.info("Pushing signing provider '{}' to Core at {}", provider, coreBaseUrl);
 
-        return webClient.commonWebClient()
+        return webClientConfig.commonWebClient()
                 .put()
                 .uri(coreBaseUrl + "/internal/signing/provider")
                 .contentType(MediaType.APPLICATION_JSON)
