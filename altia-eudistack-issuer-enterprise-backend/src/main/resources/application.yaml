@@ -6,7 +6,7 @@ logging:
     es.altia: INFO
 signing:
   provider: csc-sign-doc   # csc-sign-hash / csc-sign-doc / in-memory
-  coreUrl: https://issuer.blue.eudistack.net
+  coreUrl: http://eudistack-issuer-core-backend:8080
 management:
   endpoints:
     enabled-by-default: false
