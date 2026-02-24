@@ -24,7 +24,7 @@ public class CoreSigningConfigClient {
 
         return webClient.commonWebClient()
                 .put()
-                .uri(coreBaseUrl + "/backoffice/v1/credentials/signing/provider")
+                .uri(coreBaseUrl + "/internal/signing/provider")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("provider", provider))
                 .retrieve()
