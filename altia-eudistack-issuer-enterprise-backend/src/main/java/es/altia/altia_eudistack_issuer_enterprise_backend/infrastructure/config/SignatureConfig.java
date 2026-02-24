@@ -3,9 +3,12 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.adapter.impl.YamlConfigAdapter;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.SignatureProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+
+@Configuration
+@EnableConfigurationProperties(SignatureProperties.class)
 @RequiredArgsConstructor
 public class SignatureConfig {
 
