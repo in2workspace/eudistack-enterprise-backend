@@ -2,18 +2,19 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.adapter.impl.YamlConfigAdapter;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.SignatureProperties;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 
-@Configuration
-@EnableConfigurationProperties(SignatureProperties.class)
-@RequiredArgsConstructor
+@Component
 public class SignatureConfig {
 
     private final YamlConfigAdapter configAdapter;
     private final SignatureProperties signatureProperties;
+
+    public SignatureConfig(YamlConfigAdapter yamlConfigAdapter, SignatureProperties signatureProperties) {
+        this.configAdapter = yamlConfigAdapter;
+        this.signatureProperties = signatureProperties;
+    }
 
     public String getCoreDomain() {
         return configAdapter.getConfiguration(signatureProperties.coreUrl());
