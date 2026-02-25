@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 public record RemoteSignatureConfigDto(
         @NotBlank String type,
         @NotBlank String url,
-        @NotNull PathsDto paths,
+        @NotNull PathsDto signPath,
         @NotBlank String clientId,
         @NotBlank String clientSecret,
         @NotBlank String credentialId,
