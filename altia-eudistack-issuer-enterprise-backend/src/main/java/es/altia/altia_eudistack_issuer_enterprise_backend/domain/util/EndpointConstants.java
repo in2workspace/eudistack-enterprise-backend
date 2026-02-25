@@ -14,6 +14,11 @@ public class EndpointConstants {
                     .withDefaults()
                     .matcher(HttpMethod.POST, DATA_ACQUISITION_PATH);
 
+    public static final PathPatternRequestMatcher DATA_ACQUISITION_PATH_OPTIONS_PATTERN =
+            PathPatternRequestMatcher
+                    .withDefaults()
+                    .matcher(HttpMethod.OPTIONS, DATA_ACQUISITION_PATH);
+
     public static final PathPatternRequestMatcher HEALTH_PATH_GET_PATTERN =
             PathPatternRequestMatcher
                     .withDefaults()
