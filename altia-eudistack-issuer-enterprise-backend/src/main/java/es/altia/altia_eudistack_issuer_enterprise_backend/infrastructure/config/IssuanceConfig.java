@@ -9,8 +9,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Duration;
-
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
@@ -33,19 +31,19 @@ public class IssuanceConfig {
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
-                    coreSigningConfigClient.pushSigningConfig(request)
-                            .timeout(Duration.ofSeconds(10))
-                            .block();
-
+                    coreSigningConfigClient.pushSigningConfig(request); // <-- imperativo (ya bloquea con timeout)
                     log.info("Signing config pushed to Core (attempt {}/{})", attempt, maxAttempts);
                     return;
+
                 } catch (Exception ex) {
                     if (attempt == maxAttempts) {
                         log.warn("Could not push signing config to Core after {} attempts. Core may not be ready.", maxAttempts, ex);
                         return;
                     }
+
                     log.warn("Could not push signing config to Core (attempt {}/{}). Retrying in {} ms. Cause: {}",
-                            attempt, maxAttempts, sleepMs, ex.getMessage());
+                            attempt, maxAttempts, sleepMs, ex.toString());
+
                     try {
                         Thread.sleep(sleepMs);
                     } catch (InterruptedException ie) {
@@ -57,6 +55,7 @@ public class IssuanceConfig {
             }
         };
     }
+
     private SigningConfigPushRequest getSigningConfigPushRequest(String provider) {
         RemoteSignatureConfigDto remote = new RemoteSignatureConfigDto(
                 remoteSignatureConfig.getRemoteSignatureType(),
@@ -71,8 +70,6 @@ public class IssuanceConfig {
                         : null
         );
 
-        SigningConfigPushRequest request = new SigningConfigPushRequest(provider, remote);
-        return request;
+        return new SigningConfigPushRequest(provider, remote);
     }
-
 }

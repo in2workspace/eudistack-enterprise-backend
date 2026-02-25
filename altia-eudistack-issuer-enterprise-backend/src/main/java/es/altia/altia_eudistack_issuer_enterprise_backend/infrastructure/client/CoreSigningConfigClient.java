@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -16,6 +15,8 @@ import java.time.Duration;
 @Component
 @RequiredArgsConstructor
 public class CoreSigningConfigClient {
+
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
     private final WebClient commonWebClient;
     private final SignatureConfig signatureConfig;
@@ -27,32 +28,20 @@ public class CoreSigningConfigClient {
         log.info("Pushing signing provider '{}' to Core URL={}", request.provider(), url);
 
         try {
+            // Imperativo: hace la llamada y espera respuesta (con timeout)
             commonWebClient
                     .put()
                     .uri(url)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
-                    // fuerza a leer el body de error para loguearlo bien
-                    .onStatus(status -> status.isError(), resp ->
-                            resp.bodyToMono(String.class)
-                                    .defaultIfEmpty("")
-                                    .flatMap(body -> {
-                                        log.error("Core returned error. Status={} URL={} Body={}",
-                                                resp.statusCode(), url, body);
-                                        return Mono.error(new IllegalStateException(
-                                                "Core returned " + resp.statusCode() + " for " + url));
-                                    })
-                    )
                     .toBodilessEntity()
-                    .timeout(Duration.ofSeconds(10))
-                    .block();
+                    .block(TIMEOUT);
 
             log.info("Signing config pushed successfully to Core URL={}", url);
 
         } catch (WebClientResponseException e) {
-            // Por si algo se escapa del onStatus (p.ej. decode)
-            log.error("Core returned WebClientResponseException. Status={} URL={} Body={}",
+            log.error("Core returned error. Status={} URL={} Body={}",
                     e.getStatusCode(), url, e.getResponseBodyAsString(), e);
             throw new IllegalStateException(
                     "Failed to push signing config to Core. Status=" + e.getStatusCode(),
