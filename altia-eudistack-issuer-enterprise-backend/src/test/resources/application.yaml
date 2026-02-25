@@ -1,10 +1,7 @@
 spring:
-  application:
-    name: altia-eudistack-issuer-enterprise-backend
+  profiles:
+    active: dev
 
-logging:
-  level:
-    es.altia: INFO
 management:
   endpoints:
     enabled-by-default: false
@@ -21,6 +18,3 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-issuer-core-backend:
-  url:

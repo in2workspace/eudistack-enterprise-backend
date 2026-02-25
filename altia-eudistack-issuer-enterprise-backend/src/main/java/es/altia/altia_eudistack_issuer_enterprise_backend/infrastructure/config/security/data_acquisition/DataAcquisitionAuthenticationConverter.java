@@ -1,4 +1,4 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.authentic_source;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 @Slf4j
-public class AuthenticSourceAuthenticationConverter
+public class DataAcquisitionAuthenticationConverter
         implements AuthenticationConverter {
 
     private static final String AUTHORIZATION = "Authorization";
