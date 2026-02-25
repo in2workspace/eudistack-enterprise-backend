@@ -1,16 +1,25 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
+import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.PathsDto;
+import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
+import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client.CoreSigningConfigClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.ApplicationRunner;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
@@ -19,22 +28,62 @@ class IssuanceConfigTest {
     private CoreSigningConfigClient coreSigningConfigClient;
     @Mock
     private SignatureConfig signatureConfig;
+    @Mock
+    private RemoteSignatureConfig remoteSignatureConfig;
     @InjectMocks
     private IssuanceConfig issuanceConfig;
 
     @BeforeEach
     void setUp() {
-        issuanceConfig = new IssuanceConfig(coreSigningConfigClient, signatureConfig);
+        issuanceConfig = new IssuanceConfig(coreSigningConfigClient, signatureConfig, remoteSignatureConfig);
     }
 
     @Test
     void pushSigningConfigAtStartup_successOnFirstTry() throws Exception {
-        when(signatureConfig.getProvider()).thenReturn("provider-ok");
-        when(coreSigningConfigClient.pushSigningProvider("provider-ok")).thenReturn(Mono.empty());
+        // Given
+        when(signatureConfig.getProvider()).thenReturn("csc-sign-hash");
 
+        when(remoteSignatureConfig.getRemoteSignatureType()).thenReturn("cloud");
+        when(remoteSignatureConfig.getRemoteSignatureDomain()).thenReturn("https://qtsp.example.com");
+        when(remoteSignatureConfig.getRemoteSignatureSignPath()).thenReturn("/csc/v2/signatures/signHash");
+        when(remoteSignatureConfig.getRemoteSignatureClientId()).thenReturn("clientId");
+        when(remoteSignatureConfig.getRemoteSignatureClientSecret()).thenReturn("clientSecret");
+        when(remoteSignatureConfig.getRemoteSignatureCredentialId()).thenReturn("cred-id");
+        when(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).thenReturn("cred-pwd");
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
+
+        when(coreSigningConfigClient.pushSigningConfig(any(SigningConfigPushRequest.class)))
+                .thenReturn(Mono.empty());
+
+        // When
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
         runner.run(null);
 
-        verify(coreSigningConfigClient, times(1)).pushSigningProvider("provider-ok");
+        // Then
+        ArgumentCaptor<SigningConfigPushRequest> captor = ArgumentCaptor.forClass(SigningConfigPushRequest.class);
+        verify(coreSigningConfigClient, times(1)).pushSigningConfig(captor.capture());
+
+        SigningConfigPushRequest req = captor.getValue();
+        assertNotNull(req);
+
+        assertEquals("csc-sign-hash", req.provider());
+
+        RemoteSignatureConfigDto remote = req.remoteSignature();
+        assertNotNull(remote);
+
+        assertEquals("cloud", remote.type());
+        assertEquals("https://qtsp.example.com", remote.url());
+
+        PathsDto paths = remote.paths();
+        assertNotNull(paths);
+        assertEquals("/csc/v2/signatures/signHash", paths.signPath());
+
+        assertEquals("clientId", remote.clientId());
+        assertEquals("clientSecret", remote.clientSecret());
+        assertEquals("cred-id", remote.credentialId());
+        assertEquals("cred-pwd", remote.credentialPassword());
+
+        // TTL como ISO-8601 Duration (PT10M) si lo envías así
+        assertEquals("PT10M", remote.certificateInfoCacheTtl());
     }
 }

@@ -17,7 +17,7 @@ public class CoreSigningConfigClient {
     private final WebClientConfig webClientConfig;
     private final SignatureConfig signatureConfig;
 
-    public Mono<Void> pushSigningProvider(SigningConfigPushRequest request) {
+    public Mono<Void> pushSigningConfig(SigningConfigPushRequest request) {
         String coreBaseUrl = signatureConfig.getCoreDomain();
         log.info("Pushing signing provider '{}' to Core at {}", request.provider(), coreBaseUrl);
 
