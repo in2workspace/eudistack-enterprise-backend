@@ -22,7 +22,7 @@ public class IssuanceConfig {
     public ApplicationRunner pushSigningConfigAtStartup() {
         return args -> {
             String provider = signatureConfig.getProvider();
-            log.info("Enterprise starting. Selected signing provider: {}", provider);
+            log.info("Enterprise starting. Selected signing providerr: {}", provider);
 
             SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
 
