@@ -57,7 +57,7 @@ public class IssuanceConfig {
         RemoteSignatureConfigDto remote = new RemoteSignatureConfigDto(
                 remoteSignatureConfig.getRemoteSignatureType(),
                 remoteSignatureConfig.getRemoteSignatureDomain(),
-                new PathsDto(remoteSignatureConfig.getRemoteSignatureSignPath()),
+                remoteSignatureConfig.getRemoteSignatureSignPath(),
                 remoteSignatureConfig.getRemoteSignatureClientId(),
                 remoteSignatureConfig.getRemoteSignatureClientSecret(),
                 remoteSignatureConfig.getRemoteSignatureCredentialId(),
