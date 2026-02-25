@@ -1,6 +1,5 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.PathsDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client.CoreSigningConfigClient;
@@ -9,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 @Slf4j
 @Configuration
@@ -32,7 +33,10 @@ public class IssuanceConfig {
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
-                    coreSigningConfigClient.pushSigningConfig(request);
+                    coreSigningConfigClient.pushSigningConfig(request)
+                            .timeout(Duration.ofSeconds(10))
+                            .block();
+
                     log.info("Signing config pushed to Core (attempt {}/{})", attempt, maxAttempts);
                     return;
                 } catch (Exception ex) {
