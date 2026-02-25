@@ -1,5 +1,6 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client;
 
+import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.SignatureConfig;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.WebClientConfig;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -18,18 +17,19 @@ public class CoreSigningConfigClient {
     private final WebClientConfig webClientConfig;
     private final SignatureConfig signatureConfig;
 
-    public Mono<Void> pushSigningProvider(String provider) {
+    public Mono<Void> pushSigningProvider(SigningConfigPushRequest request) {
         String coreBaseUrl = signatureConfig.getCoreDomain();
-        log.info("Pushing signing provider '{}' to Core at {}", provider, coreBaseUrl);
+        log.info("Pushing signing provider '{}' to Core at {}", request.provider(), coreBaseUrl);
 
         return webClientConfig.commonWebClient()
                 .put()
-                .uri(coreBaseUrl + "/internal/signing/provider")
+                .uri(coreBaseUrl + "/internal/signing/config")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of("provider", provider))
+                .bodyValue(request)
                 .retrieve()
-                .bodyToMono(Void.class)
-                .doOnSuccess(v -> log.info("Successfully pushed signing provider to Core"))
-                .doOnError(err -> log.error("Failed to push signing provider to Core: {}", err.getMessage()));
+                .bodyToMono(Void.class);
     }
+
+
+
 }
