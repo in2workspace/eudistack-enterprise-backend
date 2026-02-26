@@ -25,33 +25,8 @@ public class IssuanceConfig {
             log.info("Enterprise starting. Selected signing provider: {}", provider);
 
             SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
-
-            int maxAttempts = 4;
-            long sleepMs = 2000;
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-                try {
-                    signingConfigHttpClient.executeSigningConfigRequest(request);
-                    log.info("Signing config pushed to Core (attempt {}/{})", attempt, maxAttempts);
-                    return;
-                } catch (Exception ex) {
-                    if (attempt == maxAttempts) {
-                        log.warn("Could not push signing config to Core after {} attempts. Core may not be ready.", maxAttempts, ex);
-                        return;
-                    }
-
-                    log.warn("Could not push signing config to Core (attempt {}/{}). Retrying in {} ms. Cause: {}",
-                            attempt, maxAttempts, sleepMs, ex.toString());
-
-                    try {
-                        Thread.sleep(sleepMs);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        log.warn("Retry interrupted. Skipping push signing config.");
-                        return;
-                    }
-                }
-            }
+            signingConfigHttpClient.executeSigningConfigRequest(request);
+            log.info("Signing config pushed to Core");
         };
     }
 
