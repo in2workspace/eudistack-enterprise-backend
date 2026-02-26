@@ -110,10 +110,10 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
           set -euo pipefail
-          TAG="v${VERSION}-enterprise"          
+          TAG="v${VERSION}"          
               
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}"
-          ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest-enterprise"
+          ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
           
           docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend
 
