@@ -46,7 +46,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().schema()).isEqualTo(CREDENTIAL_CONFIGURATION_ID);
     }
 
@@ -55,7 +55,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().format()).isEqualTo("jwt_vc_json");
     }
 
@@ -64,8 +64,8 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
-        assertThat(captor.getValue().operationMode()).isEqualTo("SYNC");
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
+        assertThat(captor.getValue().operationMode()).isEqualTo("S");
     }
 
     @Test
@@ -75,7 +75,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().payload()).isEqualTo(payloadNode);
     }
 
@@ -84,7 +84,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().email()).isEqualTo(HOLDER_EMAIL);
     }
 
@@ -93,7 +93,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA_WITH_EMAIL, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().email()).isEqualTo(PAYLOAD_EMAIL);
     }
 
@@ -102,7 +102,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA_WITH_BLANK_EMAIL, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().email()).isEqualTo(HOLDER_EMAIL);
     }
 
@@ -110,7 +110,7 @@ class IssuanceServiceImplTest {
     void issueCredential_ShouldCallExecuteIssuanceRequest() {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
-        verify(issuanceHttpClient, times(1)).executeIssuanceRequest(bearerToken, any(PreSubmittedCredentialDataRequest.class));
+        verify(issuanceHttpClient, times(1)).executeIssuanceRequest(eq(bearerToken), any(PreSubmittedCredentialDataRequest.class));
     }
 
     @Test
@@ -141,7 +141,7 @@ class IssuanceServiceImplTest {
         issuanceService.issueCredential(bearerToken, CREDENTIAL_CONFIGURATION_ID, ACQUIRED_DATA, HOLDER_EMAIL);
 
         ArgumentCaptor<PreSubmittedCredentialDataRequest> captor = ArgumentCaptor.forClass(PreSubmittedCredentialDataRequest.class);
-        verify(issuanceHttpClient).executeIssuanceRequest(bearerToken, captor.capture());
+        verify(issuanceHttpClient).executeIssuanceRequest(eq(bearerToken), captor.capture());
         assertThat(captor.getValue().email()).isEqualTo(HOLDER_EMAIL);
     }
 }

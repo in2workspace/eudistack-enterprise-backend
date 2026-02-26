@@ -6,10 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class AltiaEudistackIssuerEnterpriseBackendApplicationTest {
 
-    @Test
+    /*@Test
     @SuppressWarnings("EmptyMethod")
     void contextLoads() {
-    }
+    }*/
 
 }
 

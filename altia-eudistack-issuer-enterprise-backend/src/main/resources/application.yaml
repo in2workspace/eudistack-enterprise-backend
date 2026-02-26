@@ -5,6 +5,25 @@ spring:
 logging:
   level:
     es.altia: INFO
+signing:
+  provider:
+  coreUrl:
+remote-signature:
+  certificate-info-cache-ttl: PT10M
+  # The type of the remote signature service (REQUIRED)
+  type:
+  # The URL of the remote signature service (REQUIRED)
+  url:
+  paths:
+    sign-path: "/signature/sign"
+  # The client ID used for remote signature (REQUIRED)
+  client-id:
+  # The client secret used for remote signature (REQUIRED)
+  client-secret:
+  # The credential ID used for remote signature (REQUIRED)
+  credential-id:
+  # The credential password used for remote signature (REQUIRED)
+  credential-password:
 management:
   endpoints:
     enabled-by-default: false
