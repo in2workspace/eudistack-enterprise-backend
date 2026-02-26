@@ -2,7 +2,7 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client.CoreSigningConfigClient;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class IssuanceConfig {
 
-    private final CoreSigningConfigClient coreSigningConfigClient;
+    private final SigningConfigHttpClient signingConfigHttpClient;
     private final SignatureConfig signatureConfig;
     private final RemoteSignatureConfig remoteSignatureConfig;
 
@@ -31,10 +31,9 @@ public class IssuanceConfig {
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
-                    coreSigningConfigClient.pushSigningConfig(request);
+                    signingConfigHttpClient.executeSigningConfigRequest(request);
                     log.info("Signing config pushed to Core (attempt {}/{})", attempt, maxAttempts);
                     return;
-
                 } catch (Exception ex) {
                     if (attempt == maxAttempts) {
                         log.warn("Could not push signing config to Core after {} attempts. Core may not be ready.", maxAttempts, ex);
