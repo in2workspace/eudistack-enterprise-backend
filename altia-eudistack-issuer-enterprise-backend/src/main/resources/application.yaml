@@ -1,6 +1,7 @@
 spring:
   application:
     name: altia-eudistack-issuer-enterprise-backend
+
 logging:
   level:
     es.altia: INFO
@@ -39,3 +40,6 @@ management:
   tracing:
     sampling:
       probability: 1.0
+
+issuer-core-backend:
+  url:
