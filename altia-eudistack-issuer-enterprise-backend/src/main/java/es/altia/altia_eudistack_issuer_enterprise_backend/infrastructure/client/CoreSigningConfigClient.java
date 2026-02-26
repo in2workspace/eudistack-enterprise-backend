@@ -28,7 +28,6 @@ public class CoreSigningConfigClient {
         log.info("Pushing signing provider '{}' to Core URL={}", request.provider(), url);
 
         try {
-            // Imperativo: hace la llamada y espera respuesta (con timeout)
             commonWebClient
                     .put()
                     .uri(url)
