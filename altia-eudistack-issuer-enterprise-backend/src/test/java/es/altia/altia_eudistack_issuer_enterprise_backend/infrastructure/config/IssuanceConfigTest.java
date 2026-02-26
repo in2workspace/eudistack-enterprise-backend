@@ -2,7 +2,7 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.client.CoreSigningConfigClient;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class IssuanceConfigTest {
 
     @Mock
-    private CoreSigningConfigClient coreSigningConfigClient;
+    private SigningConfigHttpClient signingConfigHttpClient;
     @Mock
     private SignatureConfig signatureConfig;
     @Mock
@@ -32,7 +32,7 @@ class IssuanceConfigTest {
 
     @BeforeEach
     void setUp() {
-        issuanceConfig = new IssuanceConfig(coreSigningConfigClient, signatureConfig, remoteSignatureConfig);
+        issuanceConfig = new IssuanceConfig(signingConfigHttpClient, signatureConfig, remoteSignatureConfig);
     }
 
     @Test
@@ -49,13 +49,13 @@ class IssuanceConfigTest {
         when(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).thenReturn("cred-pwd");
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
 
-        doNothing().when(coreSigningConfigClient).pushSigningConfig(any(SigningConfigPushRequest.class));
+        doNothing().when(signingConfigHttpClient).executeSigningConfigRequest(any(SigningConfigPushRequest.class));
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
         runner.run(null);
 
         ArgumentCaptor<SigningConfigPushRequest> captor = ArgumentCaptor.forClass(SigningConfigPushRequest.class);
-        verify(coreSigningConfigClient, times(1)).pushSigningConfig(captor.capture());
+        verify(signingConfigHttpClient, times(1)).executeSigningConfigRequest(captor.capture());
 
         SigningConfigPushRequest req = captor.getValue();
         assertNotNull(req);
