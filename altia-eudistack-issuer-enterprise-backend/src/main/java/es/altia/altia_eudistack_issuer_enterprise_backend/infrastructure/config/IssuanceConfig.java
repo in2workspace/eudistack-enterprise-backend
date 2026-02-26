@@ -22,7 +22,7 @@ public class IssuanceConfig {
     public ApplicationRunner pushSigningConfigAtStartup() {
         return args -> {
             String provider = signatureConfig.getProvider();
-            log.info("Enterprise starting. Selected signing providerr: {}", provider);
+            log.info("Enterprise starting. Selected signing provider: {}", provider);
 
             SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
 
@@ -31,7 +31,7 @@ public class IssuanceConfig {
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
-                    coreSigningConfigClient.pushSigningConfig(request); // <-- imperativo (ya bloquea con timeout)
+                    coreSigningConfigClient.pushSigningConfig(request);
                     log.info("Signing config pushed to Core (attempt {}/{})", attempt, maxAttempts);
                     return;
 

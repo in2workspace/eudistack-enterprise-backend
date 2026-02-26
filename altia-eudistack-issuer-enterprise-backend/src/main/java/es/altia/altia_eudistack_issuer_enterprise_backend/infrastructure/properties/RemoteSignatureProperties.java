@@ -23,7 +23,7 @@ public record RemoteSignatureProperties(
 ) {
 
     @ConstructorBinding
-    public RemoteSignatureProperties(String type, String url, Paths paths, String clientId, String clientSecret, String credentialId, String credentialPassword,String certificateInfoCacheTtl) {
+    public RemoteSignatureProperties(String type, String url, Paths paths, String clientId, String clientSecret, String credentialId, String credentialPassword, String certificateInfoCacheTtl) {
         this.url = url;
         this.paths = Optional.ofNullable(paths).orElse(new Paths(""));
         this.clientId = clientId;
