@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.time.Duration;
 import java.util.List;
 
-@ConfigurationProperties(prefix = "data-acquisition")
+@ConfigurationProperties(prefix = "app.data-acquisition")
 public record DataAcquisitionProperties(
         List<Source> sources
 ) {

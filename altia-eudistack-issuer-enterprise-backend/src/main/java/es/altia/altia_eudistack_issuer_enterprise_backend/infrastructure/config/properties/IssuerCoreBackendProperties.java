@@ -5,7 +5,7 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "issuer-core-backend")
+@ConfigurationProperties(prefix = "app.issuer-core-backend")
 @Validated
 public record IssuerCoreBackendProperties(
         @NotBlank @URL String url

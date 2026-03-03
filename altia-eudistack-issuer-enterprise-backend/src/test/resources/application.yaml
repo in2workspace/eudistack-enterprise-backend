@@ -1,25 +1,7 @@
 spring:
   profiles:
     active: dev
-signing:
-  provider: in-memory
-  coreUrl: https://issuer.dummy.eudistack.net
-remote-signature:
-  certificate-info-cache-ttl: PT10M
-  # The type of the remote signature service (REQUIRED)
-  type: type
-  # The URL of the remote signature service (REQUIRED)
-  url: https://remote-signature.dummy.eudistack.net
-  paths:
-    sign-path: "/signature/sign"
-  # The client ID used for remote signature (REQUIRED)
-  client-id: client-id
-  # The client secret used for remote signature (REQUIRED)
-  client-secret: client-secret
-  # The credential ID used for remote signature (REQUIRED)
-  credential-id: credential-id
-  # The credential password used for remote signature (REQUIRED)
-  credential-password: credential-password
+
 management:
   endpoints:
     enabled-by-default: false
@@ -36,3 +18,17 @@ management:
   tracing:
     sampling:
       probability: 1.0
+app:
+  signing:
+    provider: in-memory
+    coreUrl: https://issuer.dummy.eudistack.net
+  remote-signature:
+    certificate-info-cache-ttl: PT10M
+    type: type
+    url: https://remote-signature.dummy.eudistack.net
+    paths:
+      sign-path: "/signature/sign"
+    client-id: client-id
+    client-secret: client-secret
+    credential-id: credential-id
+    credential-password: credential-password

@@ -5,7 +5,7 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "signing")
+@ConfigurationProperties(prefix = "app.signing")
 @Validated
 public record SignatureProperties(
         @NotBlank String provider,
