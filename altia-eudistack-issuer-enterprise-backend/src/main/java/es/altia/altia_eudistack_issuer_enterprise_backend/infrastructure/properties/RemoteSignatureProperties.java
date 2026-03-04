@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
-@ConfigurationProperties(prefix = "remote-signature")
+@ConfigurationProperties(prefix = "app.remote-signature")
 @Validated
 public record RemoteSignatureProperties(
         @NotBlank String type,
