@@ -2,23 +2,57 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.proper
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RemoteSignaturePropertiesTest {
 
-    public static final String SIGNATURE_REMOTE_TYPE_SERVER = "server";
+    @Test
+    void shouldCreateRemoteSignaturePropertiesWithProvidedValues() {
+        RemoteSignatureProperties.Paths paths = new RemoteSignatureProperties.Paths("/signature/sign");
+
+        RemoteSignatureProperties properties = new RemoteSignatureProperties(
+                "server",
+                "https://remote-signature.example.com",
+                paths,
+                "client-id",
+                "client-secret",
+                "credential-id",
+                "credential-password",
+                "PT15M"
+        );
+
+        assertThat(properties.type()).isEqualTo("server");
+        assertThat(properties.url()).isEqualTo("https://remote-signature.example.com");
+        assertThat(properties.paths()).isEqualTo(paths);
+        assertThat(properties.paths().signPath()).isEqualTo("/signature/sign");
+        assertThat(properties.clientId()).isEqualTo("client-id");
+        assertThat(properties.clientSecret()).isEqualTo("client-secret");
+        assertThat(properties.credentialId()).isEqualTo("credential-id");
+        assertThat(properties.credentialPassword()).isEqualTo("credential-password");
+        assertThat(properties.certificateInfoCacheTtl()).isEqualTo("PT15M");
+    }
 
     @Test
-    void testRemoteSignatureProperties() {
-        RemoteSignatureProperties.Paths paths = new RemoteSignatureProperties.Paths("signPath");
-        RemoteSignatureProperties remoteSignatureProperties = new RemoteSignatureProperties(SIGNATURE_REMOTE_TYPE_SERVER,"domain", paths, "clientId", "clientSecret", "credentialId", "credentialPassword", null);
+    void shouldUseDefaultValuesWhenPathsAndCertificateInfoCacheTtlAreNull() {
+        RemoteSignatureProperties properties = new RemoteSignatureProperties(
+                "server",
+                "https://remote-signature.example.com",
+                null,
+                "client-id",
+                "client-secret",
+                "credential-id",
+                "credential-password",
+                null
+        );
 
-        assertEquals(SIGNATURE_REMOTE_TYPE_SERVER, remoteSignatureProperties.type());
-        assertEquals("domain", remoteSignatureProperties.url());
-        assertEquals(paths, remoteSignatureProperties.paths());
-        assertEquals("clientId", remoteSignatureProperties.clientId());
-        assertEquals("clientSecret", remoteSignatureProperties.clientSecret());
-        assertEquals("credentialId", remoteSignatureProperties.credentialId());
-        assertEquals("credentialPassword", remoteSignatureProperties.credentialPassword());
+        assertThat(properties.type()).isEqualTo("server");
+        assertThat(properties.url()).isEqualTo("https://remote-signature.example.com");
+        assertThat(properties.paths()).isNotNull();
+        assertThat(properties.paths().signPath()).isEmpty();
+        assertThat(properties.clientId()).isEqualTo("client-id");
+        assertThat(properties.clientSecret()).isEqualTo("client-secret");
+        assertThat(properties.credentialId()).isEqualTo("credential-id");
+        assertThat(properties.credentialPassword()).isEqualTo("credential-password");
+        assertThat(properties.certificateInfoCacheTtl()).isEqualTo("PT10M");
     }
 }

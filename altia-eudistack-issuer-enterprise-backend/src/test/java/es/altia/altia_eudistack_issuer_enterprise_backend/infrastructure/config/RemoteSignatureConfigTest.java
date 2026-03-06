@@ -4,113 +4,81 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.RemoteSignatureProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
 class RemoteSignatureConfigTest {
 
-    @Mock
-    private YamlConfigAdapter configAdapter;
+    private static final String TYPE = "server";
+    private static final String URL = "https://remote-signature.example.com";
+    private static final String SIGN_PATH = "/signature/sign";
+    private static final String CLIENT_ID = "client-id";
+    private static final String CLIENT_SECRET = "client-secret";
+    private static final String CREDENTIAL_ID = "credential-id";
+    private static final String CREDENTIAL_PASSWORD = "credential-password";
+    private static final String CACHE_TTL = "PT15M";
 
-    @Mock
-    private RemoteSignatureProperties remoteSignatureProperties;
-
+    private YamlConfigAdapter yamlConfigAdapter;
     private RemoteSignatureConfig remoteSignatureConfig;
 
     @BeforeEach
     void setUp() {
-        remoteSignatureConfig = new RemoteSignatureConfig(configAdapter, remoteSignatureProperties);
+        yamlConfigAdapter = mock(YamlConfigAdapter.class);
+
+        RemoteSignatureProperties remoteSignatureProperties = new RemoteSignatureProperties(
+                TYPE,
+                URL,
+                new RemoteSignatureProperties.Paths(SIGN_PATH),
+                CLIENT_ID,
+                CLIENT_SECRET,
+                CREDENTIAL_ID,
+                CREDENTIAL_PASSWORD,
+                CACHE_TTL
+        );
+
+        remoteSignatureConfig = new RemoteSignatureConfig(yamlConfigAdapter, remoteSignatureProperties);
     }
 
     @Test
-    void testGetRemoteSignatureDomain() {
-        // Arrange
-        String expectedDomain = "https://signature.example.com";
-        when(remoteSignatureProperties.url()).thenReturn("remote.signature.domain");
-        when(configAdapter.getConfiguration("remote.signature.domain")).thenReturn(expectedDomain);
+    void shouldReturnResolvedRemoteSignatureConfigurationValues() {
+        given(yamlConfigAdapter.getConfiguration(URL)).willReturn("https://resolved.example.com");
+        given(yamlConfigAdapter.getConfiguration(SIGN_PATH)).willReturn("/resolved-sign");
+        given(yamlConfigAdapter.getConfiguration(CLIENT_ID)).willReturn("resolved-client-id");
+        given(yamlConfigAdapter.getConfiguration(CLIENT_SECRET)).willReturn("resolved-client-secret");
+        given(yamlConfigAdapter.getConfiguration(CREDENTIAL_ID)).willReturn("resolved-credential-id");
+        given(yamlConfigAdapter.getConfiguration(CREDENTIAL_PASSWORD)).willReturn("resolved-credential-password");
+        given(yamlConfigAdapter.getConfiguration(TYPE)).willReturn("resolved-type");
 
-        // Act
-        String actualDomain = remoteSignatureConfig.getRemoteSignatureDomain();
+        assertThat(remoteSignatureConfig.getRemoteSignatureDomain()).isEqualTo("https://resolved.example.com");
+        assertThat(remoteSignatureConfig.getRemoteSignatureSignPath()).isEqualTo("/resolved-sign");
+        assertThat(remoteSignatureConfig.getRemoteSignatureClientId()).isEqualTo("resolved-client-id");
+        assertThat(remoteSignatureConfig.getRemoteSignatureClientSecret()).isEqualTo("resolved-client-secret");
+        assertThat(remoteSignatureConfig.getRemoteSignatureCredentialId()).isEqualTo("resolved-credential-id");
+        assertThat(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).isEqualTo("resolved-credential-password");
+        assertThat(remoteSignatureConfig.getRemoteSignatureType()).isEqualTo("resolved-type");
 
-        // Assert
-        assertEquals(expectedDomain, actualDomain);
+        verify(yamlConfigAdapter).getConfiguration(URL);
+        verify(yamlConfigAdapter).getConfiguration(SIGN_PATH);
+        verify(yamlConfigAdapter).getConfiguration(CLIENT_ID);
+        verify(yamlConfigAdapter).getConfiguration(CLIENT_SECRET);
+        verify(yamlConfigAdapter).getConfiguration(CREDENTIAL_ID);
+        verify(yamlConfigAdapter).getConfiguration(CREDENTIAL_PASSWORD);
+        verify(yamlConfigAdapter).getConfiguration(TYPE);
     }
 
     @Test
-    void testGetRemoteSignatureSignPath() {
-        // Arrange
-        String expectedPath = "/api/sign";
-        RemoteSignatureProperties.Paths paths = mock(RemoteSignatureProperties.Paths.class);
-        when(remoteSignatureProperties.paths()).thenReturn(paths);
-        when(paths.signPath()).thenReturn("remote.signature.sign.path");
-        when(configAdapter.getConfiguration("remote.signature.sign.path")).thenReturn(expectedPath);
+    void shouldReturnParsedCertificateInfoCacheTtl() {
+        given(yamlConfigAdapter.getConfiguration(CACHE_TTL)).willReturn("PT30M");
 
-        // Act
-        String actualPath = remoteSignatureConfig.getRemoteSignatureSignPath();
+        Duration ttl = remoteSignatureConfig.getCertificateInfoCacheTtl();
 
-        // Assert
-        assertEquals(expectedPath, actualPath);
-    }
+        assertThat(ttl).isEqualTo(Duration.ofMinutes(30));
 
-    @Test
-    void testGetRemoteSignatureClientId() {
-        // Arrange
-        String expectedClientId = "client_id";
-        when(remoteSignatureProperties.clientId()).thenReturn("remote.signature.client-id");
-        when(configAdapter.getConfiguration("remote.signature.client-id")).thenReturn(expectedClientId);
-
-        // Act
-        String actualClientId = remoteSignatureConfig.getRemoteSignatureClientId();
-
-        // Assert
-        assertEquals(expectedClientId, actualClientId);
-    }
-
-    @Test
-    void testGetRemoteSignatureClientSecret() {
-        // Arrange
-        String expectedClientSecret = "client_secret";
-        when(remoteSignatureProperties.clientSecret()).thenReturn("remote.signature.client-secret");
-        when(configAdapter.getConfiguration("remote.signature.client-secret")).thenReturn(expectedClientSecret);
-
-        // Act
-        String actualClientSecret = remoteSignatureConfig.getRemoteSignatureClientSecret();
-
-        // Assert
-        assertEquals(expectedClientSecret, actualClientSecret);
-    }
-
-    @Test
-    void testGetRemoteSignatureCredentialId() {
-        // Arrange
-        String expectedCredentialId = "credential_id";
-        when(remoteSignatureProperties.credentialId()).thenReturn("remote.signature.credential-id");
-        when(configAdapter.getConfiguration("remote.signature.credential-id")).thenReturn(expectedCredentialId);
-
-        // Act
-        String actualCredentialId = remoteSignatureConfig.getRemoteSignatureCredentialId();
-
-        // Assert
-        assertEquals(expectedCredentialId, actualCredentialId);
-    }
-
-    @Test
-    void testGetRemoteSignatureCredentialPassword() {
-        // Arrange
-        String expectedCredentialPassword = "credential_password";
-        when(remoteSignatureProperties.credentialPassword()).thenReturn("remote.signature.credential-password");
-        when(configAdapter.getConfiguration("remote.signature.credential-password")).thenReturn(expectedCredentialPassword);
-
-        // Act
-        String actualCredentialPassword = remoteSignatureConfig.getRemoteSignatureCredentialPassword();
-
-        // Assert
-        assertEquals(expectedCredentialPassword, actualCredentialPassword);
+        verify(yamlConfigAdapter).getConfiguration(CACHE_TTL);
     }
 }

@@ -1,9 +1,7 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,65 +12,117 @@ import org.springframework.boot.ApplicationRunner;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
 
     @Mock
     private SigningConfigHttpClient signingConfigHttpClient;
+
     @Mock
     private SignatureConfig signatureConfig;
+
     @Mock
     private RemoteSignatureConfig remoteSignatureConfig;
 
     @InjectMocks
     private IssuanceConfig issuanceConfig;
 
-    @BeforeEach
-    void setUp() {
-        issuanceConfig = new IssuanceConfig(signingConfigHttpClient, signatureConfig, remoteSignatureConfig);
-    }
-
     @Test
-    void pushSigningConfigAtStartup_successOnFirstTry() throws Exception {
-
-        when(signatureConfig.getProvider()).thenReturn("csc-sign-hash");
-
-        when(remoteSignatureConfig.getRemoteSignatureType()).thenReturn("cloud");
-        when(remoteSignatureConfig.getRemoteSignatureDomain()).thenReturn("https://qtsp.example.com");
-        when(remoteSignatureConfig.getRemoteSignatureSignPath()).thenReturn("/csc/v2/signatures/signHash");
-        when(remoteSignatureConfig.getRemoteSignatureClientId()).thenReturn("clientId");
-        when(remoteSignatureConfig.getRemoteSignatureClientSecret()).thenReturn("clientSecret");
-        when(remoteSignatureConfig.getRemoteSignatureCredentialId()).thenReturn("cred-id");
-        when(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).thenReturn("cred-pwd");
-        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
-
-        doNothing().when(signingConfigHttpClient).executeSigningConfigRequest(any(SigningConfigPushRequest.class));
+    void shouldPushSigningConfigAtStartupWithCertificateInfoCacheTtl() throws Exception {
+        given(signatureConfig.getProvider()).willReturn("csc-sign-hash");
+        given(remoteSignatureConfig.getRemoteSignatureType()).willReturn("cloud");
+        given(remoteSignatureConfig.getRemoteSignatureDomain()).willReturn("https://qtsp.example.com");
+        given(remoteSignatureConfig.getRemoteSignatureSignPath()).willReturn("/csc/v2/signatures/signHash");
+        given(remoteSignatureConfig.getRemoteSignatureClientId()).willReturn("clientId");
+        given(remoteSignatureConfig.getRemoteSignatureClientSecret()).willReturn("clientSecret");
+        given(remoteSignatureConfig.getRemoteSignatureCredentialId()).willReturn("cred-id");
+        given(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).willReturn("cred-pwd");
+        given(remoteSignatureConfig.getCertificateInfoCacheTtl()).willReturn(Duration.ofMinutes(10));
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
-        runner.run(null);
+
+        assertThatCode(() -> runner.run(null))
+                .doesNotThrowAnyException();
 
         ArgumentCaptor<SigningConfigPushRequest> captor = ArgumentCaptor.forClass(SigningConfigPushRequest.class);
         verify(signingConfigHttpClient, times(1)).executeSigningConfigRequest(captor.capture());
 
-        SigningConfigPushRequest req = captor.getValue();
-        assertNotNull(req);
-        assertEquals("csc-sign-hash", req.provider());
+        SigningConfigPushRequest request = captor.getValue();
 
-        RemoteSignatureConfigDto remote = req.remoteSignature();
-        assertNotNull(remote);
+        assertThat(request).isNotNull();
+        assertThat(request.provider()).isEqualTo("csc-sign-hash");
+        assertThat(request.remoteSignature()).isNotNull();
+        assertThat(request.remoteSignature().type()).isEqualTo("cloud");
+        assertThat(request.remoteSignature().url()).isEqualTo("https://qtsp.example.com");
+        assertThat(request.remoteSignature().signPath()).isEqualTo("/csc/v2/signatures/signHash");
+        assertThat(request.remoteSignature().clientId()).isEqualTo("clientId");
+        assertThat(request.remoteSignature().clientSecret()).isEqualTo("clientSecret");
+        assertThat(request.remoteSignature().credentialId()).isEqualTo("cred-id");
+        assertThat(request.remoteSignature().credentialPassword()).isEqualTo("cred-pwd");
+        assertThat(request.remoteSignature().certificateInfoCacheTtl()).isEqualTo("PT10M");
 
-        assertEquals("cloud", remote.type());
-        assertEquals("https://qtsp.example.com", remote.url());
-        assertEquals("/csc/v2/signatures/signHash", remote.signPath());
+        verify(signatureConfig).getProvider();
+        verify(remoteSignatureConfig).getRemoteSignatureType();
+        verify(remoteSignatureConfig).getRemoteSignatureDomain();
+        verify(remoteSignatureConfig).getRemoteSignatureSignPath();
+        verify(remoteSignatureConfig).getRemoteSignatureClientId();
+        verify(remoteSignatureConfig).getRemoteSignatureClientSecret();
+        verify(remoteSignatureConfig).getRemoteSignatureCredentialId();
+        verify(remoteSignatureConfig).getRemoteSignatureCredentialPassword();
+        verify(remoteSignatureConfig, times(2)).getCertificateInfoCacheTtl();
+        verifyNoMoreInteractions(signingConfigHttpClient, signatureConfig, remoteSignatureConfig);
+    }
 
-        assertEquals("clientId", remote.clientId());
-        assertEquals("clientSecret", remote.clientSecret());
-        assertEquals("cred-id", remote.credentialId());
-        assertEquals("cred-pwd", remote.credentialPassword());
+    @Test
+    void shouldPushSigningConfigAtStartupWithNullCertificateInfoCacheTtl() throws Exception {
+        given(signatureConfig.getProvider()).willReturn("csc-sign-hash");
+        given(remoteSignatureConfig.getRemoteSignatureType()).willReturn("cloud");
+        given(remoteSignatureConfig.getRemoteSignatureDomain()).willReturn("https://qtsp.example.com");
+        given(remoteSignatureConfig.getRemoteSignatureSignPath()).willReturn("/csc/v2/signatures/signHash");
+        given(remoteSignatureConfig.getRemoteSignatureClientId()).willReturn("clientId");
+        given(remoteSignatureConfig.getRemoteSignatureClientSecret()).willReturn("clientSecret");
+        given(remoteSignatureConfig.getRemoteSignatureCredentialId()).willReturn("cred-id");
+        given(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).willReturn("cred-pwd");
+        given(remoteSignatureConfig.getCertificateInfoCacheTtl()).willReturn(null);
 
-        assertEquals("PT10M", remote.certificateInfoCacheTtl());
+        ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
+
+        assertThatCode(() -> runner.run(null))
+                .doesNotThrowAnyException();
+
+        ArgumentCaptor<SigningConfigPushRequest> captor = ArgumentCaptor.forClass(SigningConfigPushRequest.class);
+        verify(signingConfigHttpClient).executeSigningConfigRequest(captor.capture());
+
+        SigningConfigPushRequest request = captor.getValue();
+
+        assertThat(request).isNotNull();
+        assertThat(request.provider()).isEqualTo("csc-sign-hash");
+        assertThat(request.remoteSignature()).isNotNull();
+        assertThat(request.remoteSignature().type()).isEqualTo("cloud");
+        assertThat(request.remoteSignature().url()).isEqualTo("https://qtsp.example.com");
+        assertThat(request.remoteSignature().signPath()).isEqualTo("/csc/v2/signatures/signHash");
+        assertThat(request.remoteSignature().clientId()).isEqualTo("clientId");
+        assertThat(request.remoteSignature().clientSecret()).isEqualTo("clientSecret");
+        assertThat(request.remoteSignature().credentialId()).isEqualTo("cred-id");
+        assertThat(request.remoteSignature().credentialPassword()).isEqualTo("cred-pwd");
+        assertThat(request.remoteSignature().certificateInfoCacheTtl()).isNull();
+
+        verify(signatureConfig).getProvider();
+        verify(remoteSignatureConfig).getRemoteSignatureType();
+        verify(remoteSignatureConfig).getRemoteSignatureDomain();
+        verify(remoteSignatureConfig).getRemoteSignatureSignPath();
+        verify(remoteSignatureConfig).getRemoteSignatureClientId();
+        verify(remoteSignatureConfig).getRemoteSignatureClientSecret();
+        verify(remoteSignatureConfig).getRemoteSignatureCredentialId();
+        verify(remoteSignatureConfig).getRemoteSignatureCredentialPassword();
+        verify(remoteSignatureConfig, times(1)).getCertificateInfoCacheTtl();
+        verifyNoMoreInteractions(signingConfigHttpClient, signatureConfig, remoteSignatureConfig);
     }
 }
