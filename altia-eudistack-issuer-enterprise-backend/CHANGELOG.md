@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.2.3](https://github.com/in2workspace/altia-eudistack-issuer-enterprise-backend/releases/tag/v0.2.3)
 ### Fixed
 - Prevent the app from failing during startup if pushing the signing configuration to Core fails.
+- Fixed remote signature configuration validation by removing the empty default for signPath.
 
 ## [v0.2.2](https://github.com/in2workspace/altia-eudistack-issuer-enterprise-backend/releases/tag/v0.2.2)
 ### Changed

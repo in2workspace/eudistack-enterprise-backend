@@ -25,8 +25,7 @@ public record RemoteSignatureProperties(
     @ConstructorBinding
     public RemoteSignatureProperties(String type, String url, Paths paths, String clientId, String clientSecret, String credentialId, String credentialPassword, String certificateInfoCacheTtl) {
         this.url = url;
-        // TODO: This fallback conflicts with @NotBlank on signPath; either allow null paths or use a valid default value.
-        this.paths = Optional.ofNullable(paths).orElse(new Paths(""));
+        this.paths = paths;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.credentialId = credentialId;
