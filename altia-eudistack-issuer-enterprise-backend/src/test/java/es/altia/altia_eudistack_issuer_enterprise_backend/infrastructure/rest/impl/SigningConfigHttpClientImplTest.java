@@ -51,7 +51,7 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void ExecuteSigningConfigRequest_CoreReturnsOk_ExecutesSuccessfully() {
+    void executeSigningConfigRequest_CoreReturnsOk_ExecutesSuccessfully() {
         // Arrange
         SigningConfigPushRequest request = buildRequest();
 
@@ -83,7 +83,7 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void ExecuteSigningConfigRequest_CoreReturnsServerError_ThrowsIssuanceException() {
+    void executeSigningConfigRequest_CoreReturnsServerError_ThrowsIssuanceException() {
         // Arrange
         SigningConfigPushRequest request = buildRequest();
 
