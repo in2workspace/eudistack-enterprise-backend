@@ -4,6 +4,7 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.domain.exception.Issua
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.SignatureConfig;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ class SigningConfigHttpClientImplTest {
     private static final String FULL_URL = CORE_DOMAIN + CONFIG_PATH;
 
     @Autowired
-    private SigningConfigHttpClientImpl signingConfigHttpClient;
+    private SigningConfigHttpClient signingConfigHttpClient;
 
     @Autowired
     private MockRestServiceServer mockServer;
@@ -85,6 +86,7 @@ class SigningConfigHttpClientImplTest {
 
         mockServer.expect(requestTo(FULL_URL))
                 .andExpect(method(HttpMethod.PUT))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
         assertThatThrownBy(() -> signingConfigHttpClient.executeSigningConfigRequest(request))

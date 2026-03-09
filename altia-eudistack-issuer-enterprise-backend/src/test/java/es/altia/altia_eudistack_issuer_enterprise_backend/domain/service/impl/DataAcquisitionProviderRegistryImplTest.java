@@ -40,6 +40,18 @@ class DataAcquisitionProviderRegistryImplTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenProviderTypeIsNotRegistered() {
+        DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
+
+        DataAcquisitionProviderRegistryImpl registry =
+                new DataAcquisitionProviderRegistryImpl(List.of(provider));
+
+        assertThatThrownBy(() -> registry.get(DataAcquisitionProperties.SourceType.MOCK))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("No provider found for type: MOCK");
+    }
+
+    @Test
     void shouldThrowExceptionWhenTwoProvidersSupportTheSameType() {
         DataAcquisitionProvider firstProvider = mock(DataAcquisitionProvider.class);
         DataAcquisitionProvider secondProvider = mock(DataAcquisitionProvider.class);

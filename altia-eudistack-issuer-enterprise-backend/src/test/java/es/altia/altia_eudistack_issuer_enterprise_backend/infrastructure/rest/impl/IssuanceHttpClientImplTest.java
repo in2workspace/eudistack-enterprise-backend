@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.exception.IssuanceException;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.PreSubmittedCredentialDataRequest;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.IssuanceHttpClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
@@ -36,7 +37,7 @@ class IssuanceHttpClientImplTest {
     private static final String BEARER_TOKEN = "Bearer test-token";
 
     @Autowired
-    private IssuanceHttpClientImpl issuanceHttpClient;
+    private IssuanceHttpClient issuanceHttpClient;
 
     @Autowired
     private MockRestServiceServer mockServer;
@@ -58,12 +59,12 @@ class IssuanceHttpClientImplTest {
                           "format": "vc+sd-jwt",
                           "payload": {
                             "subjectId": "user-123",
-                            "name": "Roger"
+                            "name": "User"
                           },
                           "operation_mode": "PRE_SUBMITTED",
                           "response_uri": "https://enterprise.example.com/callback",
                           "issuance_notification_uri": "https://enterprise.example.com/notifications",
-                          "email": "roger@example.com"
+                          "email": "user@example.com"
                         }
                         """))
                 .andRespond(withStatus(HttpStatus.OK));
@@ -80,6 +81,8 @@ class IssuanceHttpClientImplTest {
 
         mockServer.expect(requestTo(FULL_URL))
                 .andExpect(method(HttpMethod.POST))
+                .andExpect(header(HttpHeaders.AUTHORIZATION, BEARER_TOKEN))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
         assertThatThrownBy(() -> issuanceHttpClient.executeIssuanceRequest(BEARER_TOKEN, request))
@@ -93,7 +96,7 @@ class IssuanceHttpClientImplTest {
     private PreSubmittedCredentialDataRequest buildRequest() {
         ObjectNode payload = objectMapper.createObjectNode();
         payload.put("subjectId", "user-123");
-        payload.put("name", "Roger");
+        payload.put("name", "User");
 
         return PreSubmittedCredentialDataRequest.builder()
                 .schema("employee_badge")
@@ -102,7 +105,7 @@ class IssuanceHttpClientImplTest {
                 .operationMode("PRE_SUBMITTED")
                 .responseUri("https://enterprise.example.com/callback")
                 .issuanceNotificationUri("https://enterprise.example.com/notifications")
-                .email("roger@example.com")
+                .email("user@example.com")
                 .build();
     }
 

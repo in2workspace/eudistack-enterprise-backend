@@ -17,8 +17,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DataAcquisitionServiceImplTest {
@@ -57,7 +56,6 @@ class DataAcquisitionServiceImplTest {
 
         assertThat(result).isEqualTo("acquired-data");
 
-        verify(configuration).sourcesByCredentialConfigurationId();
         verify(providerRegistry).get(DataAcquisitionProperties.SourceType.MOCK);
         verify(provider).acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
         verifyNoMoreInteractions(configuration, providerRegistry, provider);
@@ -73,26 +71,8 @@ class DataAcquisitionServiceImplTest {
                 .hasMessage("Unknown credentialConfigurationId: " + CREDENTIAL_CONFIGURATION_ID);
 
         verify(configuration).sourcesByCredentialConfigurationId();
+        verifyNoInteractions(providerRegistry, provider);
         verifyNoMoreInteractions(configuration, providerRegistry, provider);
-    }
-
-    @Test
-    void shouldDelegateToProviderResolvedFromSourceType() {
-        DataAcquisitionProperties.Source source = buildSource(CREDENTIAL_CONFIGURATION_ID);
-
-        given(configuration.sourcesByCredentialConfigurationId())
-                .willReturn(Map.of(CREDENTIAL_CONFIGURATION_ID, source));
-        given(providerRegistry.get(source.type()))
-                .willReturn(provider);
-        given(provider.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
-                .willReturn("mapped-credential-subject");
-
-        String result = service.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
-
-        assertThat(result).isEqualTo("mapped-credential-subject");
-
-        verify(providerRegistry).get(DataAcquisitionProperties.SourceType.MOCK);
-        verify(provider).acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
     }
 
     private DataAcquisitionProperties.Source buildSource(String credentialConfigurationId) {

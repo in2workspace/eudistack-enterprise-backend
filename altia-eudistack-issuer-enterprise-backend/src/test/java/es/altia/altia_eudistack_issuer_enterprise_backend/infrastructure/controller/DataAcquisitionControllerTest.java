@@ -49,7 +49,7 @@ class DataAcquisitionControllerTest {
     @Test
     void shouldAcquireDataSuccessfully() throws Exception {
         String requestBody = objectMapper.writeValueAsString(
-                new DataAcquisitionRequest("employee_badge", "subject-123", "roger@example.com")
+                new DataAcquisitionRequest("employee_badge", "subject-123", "user@example.com")
         );
 
         mockMvc.perform(post(DATA_ACQUISITION_PATH)
@@ -59,7 +59,8 @@ class DataAcquisitionControllerTest {
                 .andExpect(status().isNoContent());
 
         then(dataAcquisitionWorkflow).should()
-                .execute(BEARER_TOKEN, "employee_badge", "subject-123", "roger@example.com");
+                .execute(BEARER_TOKEN, "employee_badge", "subject-123", "user@example.com");
+        then(dataAcquisitionWorkflow).shouldHaveNoMoreInteractions();
     }
 
     @Test
@@ -76,12 +77,13 @@ class DataAcquisitionControllerTest {
 
         then(dataAcquisitionWorkflow).should()
                 .execute(BEARER_TOKEN, "employee_badge", "subject-123", null);
+        then(dataAcquisitionWorkflow).shouldHaveNoMoreInteractions();
     }
 
     @Test
     void shouldReturnBadRequestWhenAuthorizationHeaderIsMissing() throws Exception {
         String requestBody = objectMapper.writeValueAsString(
-                new DataAcquisitionRequest("employee_badge", "subject-123", "roger@example.com")
+                new DataAcquisitionRequest("employee_badge", "subject-123", "user@example.com")
         );
 
         mockMvc.perform(post(DATA_ACQUISITION_PATH)
@@ -98,7 +100,7 @@ class DataAcquisitionControllerTest {
                 {
                   "credentialConfigurationId": "",
                   "subjectIdentifier": "subject-123",
-                  "holderEmail": "roger@example.com"
+                  "holderEmail": "user@example.com"
                 }
                 """;
 
@@ -117,7 +119,7 @@ class DataAcquisitionControllerTest {
                 {
                   "credentialConfigurationId": "employee_badge",
                   "subjectIdentifier": "",
-                  "holderEmail": "roger@example.com"
+                  "holderEmail": "user@example.com"
                 }
                 """;
 
@@ -145,7 +147,7 @@ class DataAcquisitionControllerTest {
         String requestBody = """
                 {
                   "subjectIdentifier": "subject-123",
-                  "holderEmail": "roger@example.com"
+                  "holderEmail": "user@example.com"
                 }
                 """;
 
@@ -163,7 +165,7 @@ class DataAcquisitionControllerTest {
         String requestBody = """
                 {
                   "credentialConfigurationId": "employee_badge",
-                  "holderEmail": "roger@example.com"
+                  "holderEmail": "user@example.com"
                 }
                 """;
 

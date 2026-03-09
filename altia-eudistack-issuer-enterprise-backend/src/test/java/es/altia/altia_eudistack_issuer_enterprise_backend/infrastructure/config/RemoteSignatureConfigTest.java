@@ -10,7 +10,6 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 class RemoteSignatureConfigTest {
 
@@ -45,30 +44,66 @@ class RemoteSignatureConfigTest {
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureConfigurationValues() {
+    void shouldReturnResolvedRemoteSignatureDomain() {
         given(yamlConfigAdapter.getConfiguration(URL)).willReturn("https://resolved.example.com");
+
+        String result = remoteSignatureConfig.getRemoteSignatureDomain();
+
+        assertThat(result).isEqualTo("https://resolved.example.com");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureSignPath() {
         given(yamlConfigAdapter.getConfiguration(SIGN_PATH)).willReturn("/resolved-sign");
+
+        String result = remoteSignatureConfig.getRemoteSignatureSignPath();
+
+        assertThat(result).isEqualTo("/resolved-sign");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureClientId() {
         given(yamlConfigAdapter.getConfiguration(CLIENT_ID)).willReturn("resolved-client-id");
+
+        String result = remoteSignatureConfig.getRemoteSignatureClientId();
+
+        assertThat(result).isEqualTo("resolved-client-id");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureClientSecret() {
         given(yamlConfigAdapter.getConfiguration(CLIENT_SECRET)).willReturn("resolved-client-secret");
+
+        String result = remoteSignatureConfig.getRemoteSignatureClientSecret();
+
+        assertThat(result).isEqualTo("resolved-client-secret");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureCredentialId() {
         given(yamlConfigAdapter.getConfiguration(CREDENTIAL_ID)).willReturn("resolved-credential-id");
+
+        String result = remoteSignatureConfig.getRemoteSignatureCredentialId();
+
+        assertThat(result).isEqualTo("resolved-credential-id");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureCredentialPassword() {
         given(yamlConfigAdapter.getConfiguration(CREDENTIAL_PASSWORD)).willReturn("resolved-credential-password");
+
+        String result = remoteSignatureConfig.getRemoteSignatureCredentialPassword();
+
+        assertThat(result).isEqualTo("resolved-credential-password");
+    }
+
+    @Test
+    void shouldReturnResolvedRemoteSignatureType() {
         given(yamlConfigAdapter.getConfiguration(TYPE)).willReturn("resolved-type");
 
-        assertThat(remoteSignatureConfig.getRemoteSignatureDomain()).isEqualTo("https://resolved.example.com");
-        assertThat(remoteSignatureConfig.getRemoteSignatureSignPath()).isEqualTo("/resolved-sign");
-        assertThat(remoteSignatureConfig.getRemoteSignatureClientId()).isEqualTo("resolved-client-id");
-        assertThat(remoteSignatureConfig.getRemoteSignatureClientSecret()).isEqualTo("resolved-client-secret");
-        assertThat(remoteSignatureConfig.getRemoteSignatureCredentialId()).isEqualTo("resolved-credential-id");
-        assertThat(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).isEqualTo("resolved-credential-password");
-        assertThat(remoteSignatureConfig.getRemoteSignatureType()).isEqualTo("resolved-type");
+        String result = remoteSignatureConfig.getRemoteSignatureType();
 
-        verify(yamlConfigAdapter).getConfiguration(URL);
-        verify(yamlConfigAdapter).getConfiguration(SIGN_PATH);
-        verify(yamlConfigAdapter).getConfiguration(CLIENT_ID);
-        verify(yamlConfigAdapter).getConfiguration(CLIENT_SECRET);
-        verify(yamlConfigAdapter).getConfiguration(CREDENTIAL_ID);
-        verify(yamlConfigAdapter).getConfiguration(CREDENTIAL_PASSWORD);
-        verify(yamlConfigAdapter).getConfiguration(TYPE);
+        assertThat(result).isEqualTo("resolved-type");
     }
 
     @Test
@@ -78,7 +113,5 @@ class RemoteSignatureConfigTest {
         Duration ttl = remoteSignatureConfig.getCertificateInfoCacheTtl();
 
         assertThat(ttl).isEqualTo(Duration.ofMinutes(30));
-
-        verify(yamlConfigAdapter).getConfiguration(CACHE_TTL);
     }
 }
