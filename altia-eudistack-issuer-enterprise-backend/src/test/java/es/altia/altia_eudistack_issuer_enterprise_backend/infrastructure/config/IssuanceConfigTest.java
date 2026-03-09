@@ -15,8 +15,7 @@ import java.time.Duration;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
@@ -36,7 +35,7 @@ class IssuanceConfigTest {
     @Test
     void shouldPushSigningConfigAtStartupWithCertificateInfoCacheTtl() throws Exception {
         mockCommonConfiguration();
-        given(remoteSignatureConfig.getCertificateInfoCacheTtl()).willReturn(Duration.ofMinutes(10));
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
 
@@ -56,7 +55,7 @@ class IssuanceConfigTest {
     @Test
     void shouldPushSigningConfigAtStartupWithNullCertificateInfoCacheTtl() throws Exception {
         mockCommonConfiguration();
-        given(remoteSignatureConfig.getCertificateInfoCacheTtl()).willReturn(null);
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(null);
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
 
@@ -74,14 +73,14 @@ class IssuanceConfigTest {
     }
 
     private void mockCommonConfiguration() {
-        given(signatureConfig.getProvider()).willReturn("csc-sign-hash");
-        given(remoteSignatureConfig.getRemoteSignatureType()).willReturn("cloud");
-        given(remoteSignatureConfig.getRemoteSignatureDomain()).willReturn("https://qtsp.example.com");
-        given(remoteSignatureConfig.getRemoteSignatureSignPath()).willReturn("/csc/v2/signatures/signHash");
-        given(remoteSignatureConfig.getRemoteSignatureClientId()).willReturn("clientId");
-        given(remoteSignatureConfig.getRemoteSignatureClientSecret()).willReturn("clientSecret");
-        given(remoteSignatureConfig.getRemoteSignatureCredentialId()).willReturn("cred-id");
-        given(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).willReturn("cred-pwd");
+        when(signatureConfig.getProvider()).thenReturn("csc-sign-hash");
+        when(remoteSignatureConfig.getRemoteSignatureType()).thenReturn("cloud");
+        when(remoteSignatureConfig.getRemoteSignatureDomain()).thenReturn("https://qtsp.example.com");
+        when(remoteSignatureConfig.getRemoteSignatureSignPath()).thenReturn("/csc/v2/signatures/signHash");
+        when(remoteSignatureConfig.getRemoteSignatureClientId()).thenReturn("clientId");
+        when(remoteSignatureConfig.getRemoteSignatureClientSecret()).thenReturn("clientSecret");
+        when(remoteSignatureConfig.getRemoteSignatureCredentialId()).thenReturn("cred-id");
+        when(remoteSignatureConfig.getRemoteSignatureCredentialPassword()).thenReturn("cred-pwd");
     }
 
     private SigningConfigPushRequest captureSentRequest() {

@@ -10,6 +10,7 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class RemoteSignatureConfigTest {
 
@@ -45,7 +46,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureDomain() {
-        given(yamlConfigAdapter.getConfiguration(URL)).willReturn("https://resolved.example.com");
+        when(yamlConfigAdapter.getConfiguration(URL)).thenReturn("https://resolved.example.com");
 
         String result = remoteSignatureConfig.getRemoteSignatureDomain();
 
@@ -54,7 +55,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureSignPath() {
-        given(yamlConfigAdapter.getConfiguration(SIGN_PATH)).willReturn("/resolved-sign");
+        when(yamlConfigAdapter.getConfiguration(SIGN_PATH)).thenReturn("/resolved-sign");
 
         String result = remoteSignatureConfig.getRemoteSignatureSignPath();
 
@@ -63,7 +64,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureClientId() {
-        given(yamlConfigAdapter.getConfiguration(CLIENT_ID)).willReturn("resolved-client-id");
+        when(yamlConfigAdapter.getConfiguration(CLIENT_ID)).thenReturn("resolved-client-id");
 
         String result = remoteSignatureConfig.getRemoteSignatureClientId();
 
@@ -72,7 +73,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureClientSecret() {
-        given(yamlConfigAdapter.getConfiguration(CLIENT_SECRET)).willReturn("resolved-client-secret");
+        when(yamlConfigAdapter.getConfiguration(CLIENT_SECRET)).thenReturn("resolved-client-secret");
 
         String result = remoteSignatureConfig.getRemoteSignatureClientSecret();
 
@@ -81,7 +82,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureCredentialId() {
-        given(yamlConfigAdapter.getConfiguration(CREDENTIAL_ID)).willReturn("resolved-credential-id");
+        when(yamlConfigAdapter.getConfiguration(CREDENTIAL_ID)).thenReturn("resolved-credential-id");
 
         String result = remoteSignatureConfig.getRemoteSignatureCredentialId();
 
@@ -90,7 +91,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureCredentialPassword() {
-        given(yamlConfigAdapter.getConfiguration(CREDENTIAL_PASSWORD)).willReturn("resolved-credential-password");
+        when(yamlConfigAdapter.getConfiguration(CREDENTIAL_PASSWORD)).thenReturn("resolved-credential-password");
 
         String result = remoteSignatureConfig.getRemoteSignatureCredentialPassword();
 
@@ -99,7 +100,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnResolvedRemoteSignatureType() {
-        given(yamlConfigAdapter.getConfiguration(TYPE)).willReturn("resolved-type");
+        when(yamlConfigAdapter.getConfiguration(TYPE)).thenReturn("resolved-type");
 
         String result = remoteSignatureConfig.getRemoteSignatureType();
 
@@ -108,7 +109,7 @@ class RemoteSignatureConfigTest {
 
     @Test
     void shouldReturnParsedCertificateInfoCacheTtl() {
-        given(yamlConfigAdapter.getConfiguration(CACHE_TTL)).willReturn("PT30M");
+        when(yamlConfigAdapter.getConfiguration(CACHE_TTL)).thenReturn("PT30M");
 
         Duration ttl = remoteSignatureConfig.getCertificateInfoCacheTtl();
 

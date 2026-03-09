@@ -17,6 +17,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MockDataAcquisitionAdapterTest {
@@ -57,8 +58,8 @@ class MockDataAcquisitionAdapterTest {
                 null
         );
 
-        given(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
-                .willReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, source));
+        when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
+                .thenReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, source));
 
         String result = adapter.acquire(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, "subject-123");
 
@@ -83,8 +84,8 @@ class MockDataAcquisitionAdapterTest {
 
     @Test
     void shouldThrowExceptionWhenSourceIsNotConfigured() {
-        given(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
-                .willReturn(Map.of());
+        when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
+                .thenReturn(Map.of());
 
         assertThatThrownBy(() -> adapter.acquire("unknown-credential", "subject-123"))
                 .isInstanceOf(IllegalArgumentException.class)

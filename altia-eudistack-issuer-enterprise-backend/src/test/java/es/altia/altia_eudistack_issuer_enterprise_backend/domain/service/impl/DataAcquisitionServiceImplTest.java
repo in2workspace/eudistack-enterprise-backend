@@ -45,12 +45,12 @@ class DataAcquisitionServiceImplTest {
     void shouldAcquireDataUsingProviderResolvedFromSourceType() {
         DataAcquisitionProperties.Source source = buildSource(CREDENTIAL_CONFIGURATION_ID);
 
-        given(configuration.sourcesByCredentialConfigurationId())
-                .willReturn(Map.of(CREDENTIAL_CONFIGURATION_ID, source));
-        given(providerRegistry.get(DataAcquisitionProperties.SourceType.MOCK))
-                .willReturn(provider);
-        given(provider.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
-                .willReturn("acquired-data");
+        when(configuration.sourcesByCredentialConfigurationId())
+                .thenReturn(Map.of(CREDENTIAL_CONFIGURATION_ID, source));
+        when(providerRegistry.get(DataAcquisitionProperties.SourceType.MOCK))
+                .thenReturn(provider);
+        when(provider.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
+                .thenReturn("acquired-data");
 
         String result = service.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
 
@@ -63,8 +63,8 @@ class DataAcquisitionServiceImplTest {
 
     @Test
     void shouldThrowExceptionWhenCredentialConfigurationIdIsUnknown() {
-        given(configuration.sourcesByCredentialConfigurationId())
-                .willReturn(Map.of());
+        when(configuration.sourcesByCredentialConfigurationId())
+                .thenReturn(Map.of());
 
         assertThatThrownBy(() -> service.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
                 .isInstanceOf(IllegalArgumentException.class)

@@ -7,9 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 class SignatureConfigTest {
 
@@ -33,8 +31,8 @@ class SignatureConfigTest {
 
     @Test
     void shouldReturnResolvedCoreDomain() {
-        given(yamlConfigAdapter.getConfiguration(CORE_URL))
-                .willReturn("https://resolved-core.example.com");
+        when(yamlConfigAdapter.getConfiguration(CORE_URL))
+                .thenReturn("https://resolved-core.example.com");
 
         String result = signatureConfig.getCoreDomain();
 
@@ -46,8 +44,8 @@ class SignatureConfigTest {
 
     @Test
     void shouldReturnResolvedProvider() {
-        given(yamlConfigAdapter.getConfiguration(PROVIDER))
-                .willReturn("resolved-provider");
+        when(yamlConfigAdapter.getConfiguration(PROVIDER))
+                .thenReturn("resolved-provider");
 
         String result = signatureConfig.getProvider();
 

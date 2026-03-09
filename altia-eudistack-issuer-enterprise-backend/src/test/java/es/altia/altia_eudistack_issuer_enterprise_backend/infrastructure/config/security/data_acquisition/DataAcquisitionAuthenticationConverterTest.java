@@ -10,13 +10,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class DataAcquisitionAuthenticationConverterTest {
 
     @Test
     void shouldConvertBearerHeaderToPreAuthenticatedAuthenticationToken() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        given(request.getHeader("Authorization")).willReturn("Bearer test-token");
+        when(request.getHeader("Authorization")).thenReturn("Bearer test-token");
 
         Authentication authentication = new DataAcquisitionAuthenticationConverter().convert(request);
 
@@ -28,7 +29,7 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void shouldThrowBadCredentialsExceptionWhenAuthorizationHeaderIsMissing() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        given(request.getHeader("Authorization")).willReturn(null);
+        when(request.getHeader("Authorization")).thenReturn(null);
 
         assertThatThrownBy(() -> new DataAcquisitionAuthenticationConverter().convert(request))
                 .isInstanceOf(BadCredentialsException.class)
@@ -38,7 +39,7 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void shouldThrowBadCredentialsExceptionWhenAuthorizationHeaderDoesNotStartWithBearerPrefix() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        given(request.getHeader("Authorization")).willReturn("Basic abc123");
+        when(request.getHeader("Authorization")).thenReturn("Basic abc123");
 
         assertThatThrownBy(() -> new DataAcquisitionAuthenticationConverter().convert(request))
                 .isInstanceOf(BadCredentialsException.class)
@@ -48,7 +49,7 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void shouldReturnEmptyTokenWhenBearerHeaderContainsOnlyPrefix() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-        given(request.getHeader("Authorization")).willReturn("Bearer ");
+        when(request.getHeader("Authorization")).thenReturn("Bearer ");
 
         Authentication authentication = new DataAcquisitionAuthenticationConverter().convert(request);
 

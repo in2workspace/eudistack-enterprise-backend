@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClientException;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -47,7 +48,7 @@ class SigningConfigHttpClientImplTest {
 
     @BeforeEach
     void setUp() {
-        given(signatureConfig.getCoreDomain()).willReturn(CORE_DOMAIN);
+        when(signatureConfig.getCoreDomain()).thenReturn(CORE_DOMAIN);
     }
 
     @Test
