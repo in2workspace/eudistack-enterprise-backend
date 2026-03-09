@@ -1,6 +1,5 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_adquisition;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionAuthenticationConverter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -1,9 +1,5 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_adquisition;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionAuthenticationConverter;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionAuthenticationFilter;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionIssuanceAuthenticationProvider;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionSecurityConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
