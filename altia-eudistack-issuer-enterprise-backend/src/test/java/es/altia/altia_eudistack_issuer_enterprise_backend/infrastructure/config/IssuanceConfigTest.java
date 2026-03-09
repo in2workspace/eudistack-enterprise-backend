@@ -14,9 +14,7 @@ import java.time.Duration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
@@ -66,6 +64,28 @@ class IssuanceConfigTest {
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
         assertThat(request.remoteSignature().certificateInfoCacheTtl()).isNull();
+        verifyNoMoreInteractions(signingConfigHttpClient);
+    }
+
+    @Test
+    void pushSigningConfigAtStartup_WhenPushFails_DoesNotThrowException() throws Exception {
+        // Arrange
+        mockCommonConfiguration();
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
+        doThrow(new RuntimeException("Push failed"))
+                .when(signingConfigHttpClient)
+                .executeSigningConfigRequest(any(SigningConfigPushRequest.class));
+
+        // Act
+        ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
+
+        // Assert
+        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
+
+        SigningConfigPushRequest request = captureSentRequest();
+        assertCommonRequestFields(request);
+        assertRemoteSignatureFields(request);
+        assertThat(request.remoteSignature().certificateInfoCacheTtl()).isEqualTo("PT10M");
         verifyNoMoreInteractions(signingConfigHttpClient);
     }
 
