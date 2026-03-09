@@ -14,8 +14,10 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class OutgoingRequestLoggingInterceptorTest {
 
@@ -31,15 +33,18 @@ class OutgoingRequestLoggingInterceptorTest {
     }
 
     @Test
-    void shouldExecuteRequestAndReturnResponse() throws IOException {
+    void Intercept_RequestExecutionSucceeds_ReturnsResponse() throws IOException {
+        // Arrange
         HttpRequest request = buildRequest();
         ClientHttpResponse response = mock(ClientHttpResponse.class);
 
         when(execution.execute(request, BODY)).thenReturn(response);
         when(response.getStatusCode()).thenReturn(HttpStatus.OK);
 
+        // Act
         ClientHttpResponse result = interceptor.intercept(request, BODY, execution);
 
+        // Assert
         assertThat(result).isSameAs(response);
 
         verify(execution).execute(request, BODY);
@@ -48,12 +53,14 @@ class OutgoingRequestLoggingInterceptorTest {
     }
 
     @Test
-    void shouldRethrowExceptionWhenExecutionFails() throws IOException {
+    void Intercept_RequestExecutionFails_RethrowsException() throws IOException {
+        // Arrange
         HttpRequest request = buildRequest();
         IOException exception = new IOException("Connection failed");
 
         when(execution.execute(request, BODY)).thenThrow(exception);
 
+        // Act & Assert
         assertThatThrownBy(() -> interceptor.intercept(request, BODY, execution))
                 .isSameAs(exception);
 

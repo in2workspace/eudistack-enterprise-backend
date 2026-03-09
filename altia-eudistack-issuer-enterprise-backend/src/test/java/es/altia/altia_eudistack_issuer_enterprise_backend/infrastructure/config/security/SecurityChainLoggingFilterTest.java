@@ -32,7 +32,10 @@ class SecurityChainLoggingFilterTest {
     }
 
     @Test
-    void shouldDelegateToFilterChain() throws ServletException, IOException{
+    void DoFilter_FilterChainSucceeds_DelegatesToFilterChain() throws ServletException, IOException {
+        // Arrange
+
+        // Act & Assert
         assertThatCode(() -> filter.doFilter(request, response, filterChain))
                 .doesNotThrowAnyException();
 
@@ -41,10 +44,12 @@ class SecurityChainLoggingFilterTest {
     }
 
     @Test
-    void shouldPropagateServletExceptionFromFilterChain() throws Exception {
+    void DoFilter_FilterChainThrowsServletException_PropagatesServletException() throws Exception {
+        // Arrange
         ServletException exception = new ServletException("Filter chain failed");
         doThrow(exception).when(filterChain).doFilter(request, response);
 
+        // Act & Assert
         assertThatThrownBy(() -> filter.doFilter(request, response, filterChain))
                 .isSameAs(exception);
 
@@ -53,10 +58,12 @@ class SecurityChainLoggingFilterTest {
     }
 
     @Test
-    void shouldPropagateIOExceptionFromFilterChain() throws Exception {
+    void DoFilter_FilterChainThrowsIOException_PropagatesIOException() throws Exception {
+        // Arrange
         IOException exception = new IOException("I/O failure");
         doThrow(exception).when(filterChain).doFilter(request, response);
 
+        // Act & Assert
         assertThatThrownBy(() -> filter.doFilter(request, response, filterChain))
                 .isSameAs(exception);
 

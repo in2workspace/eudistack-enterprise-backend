@@ -11,14 +11,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RestClientConfigTest {
 
     @Test
-    void shouldCreateIssuerCoreBackendRestClient() {
+    void IssuerCoreBackendRestClient_ValidProperties_ReturnsRestClient() {
+        // Arrange
         OutgoingRequestLoggingInterceptor interceptor = new OutgoingRequestLoggingInterceptor();
         RestClientConfig restClientConfig = new RestClientConfig(interceptor);
         IssuerCoreBackendProperties properties =
                 new IssuerCoreBackendProperties("https://issuer-core.example.com");
 
+        // Act
         RestClient restClient = restClientConfig.issuerCoreBackendRestClient(properties);
 
+        // Assert
         assertThat(restClient).isNotNull();
     }
 }

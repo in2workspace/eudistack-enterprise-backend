@@ -12,37 +12,49 @@ class DataAcquisitionSecurityConfigurationTest {
             new DataAcquisitionSecurityConfiguration();
 
     @Test
-    void shouldCreateDataAcquisitionAuthenticationConverter() {
+    void DataAcquisitionAuthenticationConverter_ConfigurationIsInitialized_ReturnsConverter() {
+        // Arrange
+
+        // Act
         DataAcquisitionAuthenticationConverter converter =
                 configuration.dataAcquisitionAuthenticationConverter();
 
+        // Assert
         assertThat(converter).isNotNull();
         assertThat(converter).isInstanceOf(DataAcquisitionAuthenticationConverter.class);
     }
 
     @Test
-    void shouldCreateDataAcquisitionIssuanceAuthenticationProvider() {
+    void DataAcquisitionIssuanceAuthenticationProvider_ConfigurationIsInitialized_ReturnsProvider() {
+        // Arrange
+
+        // Act
         DataAcquisitionIssuanceAuthenticationProvider provider =
                 configuration.dataAcquisitionIssuanceAuthenticationProvider();
 
+        // Assert
         assertThat(provider).isNotNull();
         assertThat(provider).isInstanceOf(DataAcquisitionIssuanceAuthenticationProvider.class);
     }
 
     @Test
-    void shouldCreateDataAcquisitionIssuanceAuthenticationManager() {
+    void DataAcquisitionIssuanceAuthenticationManager_ProviderIsProvided_ReturnsAuthenticationManager() {
+        // Arrange
         DataAcquisitionIssuanceAuthenticationProvider provider =
                 new DataAcquisitionIssuanceAuthenticationProvider();
 
+        // Act
         AuthenticationManager manager =
                 configuration.dataAcquisitionIssuanceAuthenticationManager(provider);
 
+        // Assert
         assertThat(manager).isNotNull();
         assertThat(manager).isInstanceOf(ProviderManager.class);
     }
 
     @Test
-    void shouldCreateDataAcquisitionIssuanceAuthenticationFilter() {
+    void DataAcquisitionIssuanceAuthenticationFilter_ManagerAndConverterAreProvided_ReturnsAuthenticationFilter() {
+        // Arrange
         AuthenticationManager manager =
                 configuration.dataAcquisitionIssuanceAuthenticationManager(
                         new DataAcquisitionIssuanceAuthenticationProvider()
@@ -50,9 +62,11 @@ class DataAcquisitionSecurityConfigurationTest {
         DataAcquisitionAuthenticationConverter converter =
                 configuration.dataAcquisitionAuthenticationConverter();
 
+        // Act
         DataAcquisitionAuthenticationFilter filter =
                 configuration.dataAcquisitionIssuanceAuthenticationFilter(manager, converter);
 
+        // Assert
         assertThat(filter).isNotNull();
         assertThat(filter).isInstanceOf(DataAcquisitionAuthenticationFilter.class);
     }

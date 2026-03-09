@@ -36,25 +36,29 @@ class SecurityConfigTest {
     private MockMvc mockMvc;
 
     @Test
-    void shouldRequireAuthenticationForDataAcquisitionPost() throws Exception {
+    void SecurityFilterChain_DataAcquisitionPostRequestWithoutAuthentication_ReturnsUnauthorized() throws Exception {
+        // Act & Assert
         mockMvc.perform(post(DATA_ACQUISITION_PATH))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldPermitHealthEndpoint() throws Exception {
+    void SecurityFilterChain_HealthEndpointIsRequested_ReturnsOk() throws Exception {
+        // Act & Assert
         mockMvc.perform(get("/health"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void shouldPermitOptionsForDataAcquisitionPath() throws Exception {
+    void SecurityFilterChain_OptionsRequestIsSentToDataAcquisitionPath_ReturnsOk() throws Exception {
+        // Act & Assert
         mockMvc.perform(options(DATA_ACQUISITION_PATH))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void shouldDenyAnyOtherRequest() throws Exception {
+    void SecurityFilterChain_AnyOtherRequestIsSent_ReturnsForbidden() throws Exception {
+        // Act & Assert
         mockMvc.perform(get("/forbidden"))
                 .andExpect(status().isForbidden());
     }

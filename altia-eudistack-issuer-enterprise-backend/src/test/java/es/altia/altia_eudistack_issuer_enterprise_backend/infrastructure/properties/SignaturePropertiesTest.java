@@ -16,7 +16,9 @@ class SignaturePropertiesTest {
             .withUserConfiguration(TestConfig.class);
 
     @Test
-    void shouldBindSignaturePropertiesSuccessfully() {
+    void bindSignatureProperties_ValidProperties_BindsSuccessfully() {
+        // Arrange
+        // Act & Assert
         contextRunner
                 .withPropertyValues(
                         "app.signing.provider=remote-signature",
@@ -33,7 +35,9 @@ class SignaturePropertiesTest {
     }
 
     @Test
-    void shouldFailWhenProviderIsBlank() {
+    void bindSignatureProperties_BlankProvider_ContextFails() {
+        // Arrange
+        // Act & Assert
         contextRunner
                 .withPropertyValues(
                         "app.signing.provider=",
@@ -48,7 +52,9 @@ class SignaturePropertiesTest {
     }
 
     @Test
-    void shouldFailWhenCoreUrlIsBlank() {
+    void bindSignatureProperties_BlankCoreUrl_ContextFails() {
+        // Arrange
+        // Act & Assert
         contextRunner
                 .withPropertyValues(
                         "app.signing.provider=remote-signature",
@@ -63,7 +69,9 @@ class SignaturePropertiesTest {
     }
 
     @Test
-    void shouldFailWhenCoreUrlIsNotValidUrl() {
+    void bindSignatureProperties_InvalidCoreUrl_ContextFails() {
+        // Arrange
+        // Act & Assert
         contextRunner
                 .withPropertyValues(
                         "app.signing.provider=remote-signature",

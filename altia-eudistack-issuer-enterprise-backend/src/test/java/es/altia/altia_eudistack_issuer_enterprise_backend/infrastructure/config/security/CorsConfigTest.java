@@ -10,9 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CorsConfigTest {
 
     @Test
-    void shouldCreateCorsConfigurationSourceWithExpectedValues() {
+    void CorsConfigurationSource_ConfigurationIsCreated_ReturnsExpectedValues() {
+        // Arrange
         CorsConfig corsConfig = new CorsConfig();
 
+        // Act
         CorsConfigurationSource source = corsConfig.corsConfigurationSource();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -20,6 +22,7 @@ class CorsConfigTest {
 
         CorsConfiguration configuration = source.getCorsConfiguration(request);
 
+        // Assert
         assertThat(configuration).isNotNull();
         assertThat(configuration.getAllowedOrigins()).containsExactly("https://proto.eudistack.net");
         assertThat(configuration.getAllowedMethods()).containsExactly("POST", "OPTIONS");

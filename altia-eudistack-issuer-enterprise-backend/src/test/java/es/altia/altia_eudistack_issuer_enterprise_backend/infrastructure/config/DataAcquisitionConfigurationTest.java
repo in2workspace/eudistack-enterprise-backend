@@ -13,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class DataAcquisitionConfigurationTest {
 
     @Test
-    void shouldReturnSourcesByCredentialConfigurationId() {
+    void sourcesByCredentialConfigurationId_ValidSources_ReturnsMapByCredentialConfigurationId() {
+        // Arrange
         DataAcquisitionProperties.Source firstSource = buildSource("LEARCredentialEmployee");
         DataAcquisitionProperties.Source secondSource = buildSource("AnotherCredential");
 
@@ -23,9 +24,11 @@ class DataAcquisitionConfigurationTest {
 
         DataAcquisitionConfiguration configuration = new DataAcquisitionConfiguration(properties);
 
+        // Act
         Map<String, DataAcquisitionProperties.Source> result =
                 configuration.sourcesByCredentialConfigurationId();
 
+        // Assert
         assertThat(result).hasSize(2);
         assertThat(result)
                 .containsEntry("LEARCredentialEmployee", firstSource)
@@ -33,27 +36,32 @@ class DataAcquisitionConfigurationTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenSourcesAreNull() {
+    void sourcesByCredentialConfigurationId_NullSources_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProperties properties = new DataAcquisitionProperties(null);
         DataAcquisitionConfiguration configuration = new DataAcquisitionConfiguration(properties);
 
+        // Act & Assert
         assertThatThrownBy(configuration::sourcesByCredentialConfigurationId)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No data acquisition sources configured");
     }
 
     @Test
-    void shouldThrowExceptionWhenSourcesAreEmpty() {
+    void sourcesByCredentialConfigurationId_EmptySources_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProperties properties = new DataAcquisitionProperties(List.of());
         DataAcquisitionConfiguration configuration = new DataAcquisitionConfiguration(properties);
 
+        // Act & Assert
         assertThatThrownBy(configuration::sourcesByCredentialConfigurationId)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No data acquisition sources configured");
     }
 
     @Test
-    void shouldThrowExceptionWhenCredentialConfigurationIdIsDuplicated() {
+    void sourcesByCredentialConfigurationId_DuplicatedCredentialConfigurationId_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProperties.Source firstSource = buildSource("LEARCredentialEmployee");
         DataAcquisitionProperties.Source duplicatedSource = buildSource("LEARCredentialEmployee");
 
@@ -63,6 +71,7 @@ class DataAcquisitionConfigurationTest {
 
         DataAcquisitionConfiguration configuration = new DataAcquisitionConfiguration(properties);
 
+        // Act & Assert
         assertThatThrownBy(configuration::sourcesByCredentialConfigurationId)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage(

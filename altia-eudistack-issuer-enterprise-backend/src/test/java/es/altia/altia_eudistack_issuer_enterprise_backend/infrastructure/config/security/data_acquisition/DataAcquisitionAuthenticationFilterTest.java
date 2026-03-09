@@ -20,24 +20,27 @@ import static org.mockito.Mockito.mock;
 class DataAcquisitionAuthenticationFilterTest {
 
     @Test
-    void shouldConfigureRequestMatcher() {
+    void Constructor_RequestMatcherIsProvided_ConfiguresRequestMatcher() {
+        // Arrange
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
         RequestMatcher requestMatcher = mock(RequestMatcher.class);
 
+        // Act
         DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
                 authenticationManager,
                 authenticationConverter,
                 requestMatcher
         );
 
+        // Assert
         Object configuredRequestMatcher = ReflectionTestUtils.getField(filter, "requestMatcher");
-
         assertThat(configuredRequestMatcher).isSameAs(requestMatcher);
     }
 
     @Test
-    void shouldConfigureSuccessHandler() throws ServletException, IOException {
+    void Constructor_FilterIsCreated_ConfiguresSuccessHandler() throws ServletException, IOException {
+        // Arrange
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
         RequestMatcher requestMatcher = mock(RequestMatcher.class);
@@ -55,13 +58,16 @@ class DataAcquisitionAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         Authentication authentication = mock(Authentication.class);
 
+        // Act
         successHandler.onAuthenticationSuccess(request, response, authentication);
 
+        // Assert
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
-    void shouldConfigureFailureHandlerThatReturnsUnauthorized() throws ServletException, IOException {
+    void Constructor_FilterIsCreated_ConfiguresFailureHandlerThatReturnsUnauthorized() throws ServletException, IOException {
+        // Arrange
         AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
         RequestMatcher requestMatcher = mock(RequestMatcher.class);
@@ -78,12 +84,14 @@ class DataAcquisitionAuthenticationFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/procedures/acquire");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
+        // Act
         failureHandler.onAuthenticationFailure(
                 request,
                 response,
                 new org.springframework.security.authentication.BadCredentialsException("Invalid token")
         );
 
+        // Assert
         assertThat(response.getStatus()).isEqualTo(401);
     }
 }

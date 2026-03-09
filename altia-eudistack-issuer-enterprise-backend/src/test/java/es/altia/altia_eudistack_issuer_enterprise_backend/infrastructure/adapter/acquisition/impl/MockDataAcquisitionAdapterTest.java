@@ -16,7 +16,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +36,8 @@ class MockDataAcquisitionAdapterTest {
     }
 
     @Test
-    void shouldAcquireMappedCredentialSubjectSuccessfully() throws Exception {
+    void Acquire_SourceIsConfigured_ReturnsMappedCredentialSubject() throws Exception {
+        // Arrange
         DataAcquisitionProperties.Mapping mapping = new DataAcquisitionProperties.Mapping(
                 "givenName",
                 "sn",
@@ -61,8 +61,10 @@ class MockDataAcquisitionAdapterTest {
         when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
                 .thenReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, source));
 
+        // Act
         String result = adapter.acquire(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, "subject-123");
 
+        // Assert
         JsonNode root = objectMapper.readTree(result);
         JsonNode mandatee = root.get("mandatee");
 
@@ -83,17 +85,20 @@ class MockDataAcquisitionAdapterTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenSourceIsNotConfigured() {
+    void Acquire_SourceIsNotConfigured_ThrowsIllegalArgumentException() {
+        // Arrange
         when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
                 .thenReturn(Map.of());
 
+        // Act & Assert
         assertThatThrownBy(() -> adapter.acquire("unknown-credential", "subject-123"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("No Data Acquisition source configured for credentialConfigurationId: unknown-credential");
     }
 
     @Test
-    void shouldTransformSourceNodeToExpectedTargetFields() throws Exception {
+    void Transform_SourceContainsAllMappedFields_ReturnsExpectedTargetFields() throws Exception {
+        // Arrange
         JsonNode sourceNode = objectMapper.readTree("""
                 {
                   "givenName": "John",
@@ -110,8 +115,10 @@ class MockDataAcquisitionAdapterTest {
                 "employeeNumber"
         );
 
+        // Act
         ObjectNode result = adapter.transform(sourceNode, mapping);
 
+        // Assert
         assertThat(result.get("firstName").asText()).isEqualTo("John");
         assertThat(result.get("lastName").asText()).isEqualTo("Doe");
         assertThat(result.get("email").asText()).isEqualTo("john.doe@example.com");
@@ -119,7 +126,8 @@ class MockDataAcquisitionAdapterTest {
     }
 
     @Test
-    void shouldNotIncludeTargetFieldsWhenSourceFieldsAreMissingOrNull() throws Exception {
+    void Transform_SourceContainsMissingOrNullFields_DoesNotIncludeTargetFields() throws Exception {
+        // Arrange
         JsonNode sourceNode = objectMapper.readTree("""
                 {
                   "givenName": "John",
@@ -134,8 +142,10 @@ class MockDataAcquisitionAdapterTest {
                 "employeeNumber"
         );
 
+        // Act
         ObjectNode result = adapter.transform(sourceNode, mapping);
 
+        // Assert
         assertThat(result.get("firstName").asText()).isEqualTo("John");
         assertThat(result.has("lastName")).isFalse();
         assertThat(result.has("email")).isFalse();
@@ -143,17 +153,35 @@ class MockDataAcquisitionAdapterTest {
     }
 
     @Test
-    void shouldSupportExpectedCredentialConfigurationId() {
-        assertThat(adapter.supports(SUPPORTED_CREDENTIAL_CONFIGURATION_ID)).isTrue();
+    void Supports_CredentialConfigurationIdIsSupported_ReturnsTrue() {
+        // Arrange
+
+        // Act
+        boolean result = adapter.supports(SUPPORTED_CREDENTIAL_CONFIGURATION_ID);
+
+        // Assert
+        assertThat(result).isTrue();
     }
 
     @Test
-    void shouldNotSupportUnexpectedCredentialConfigurationId() {
-        assertThat(adapter.supports("AnotherCredential")).isFalse();
+    void Supports_CredentialConfigurationIdIsNotSupported_ReturnsFalse() {
+        // Arrange
+
+        // Act
+        boolean result = adapter.supports("AnotherCredential");
+
+        // Assert
+        assertThat(result).isFalse();
     }
 
     @Test
-    void shouldReturnMockAsSupportedType() {
-        assertThat(adapter.getSupportedType()).isEqualTo(DataAcquisitionProperties.SourceType.MOCK);
+    void GetSupportedType_AdapterIsMock_ReturnsMockSourceType() {
+        // Arrange
+
+        // Act
+        DataAcquisitionProperties.SourceType result = adapter.getSupportedType();
+
+        // Assert
+        assertThat(result).isEqualTo(DataAcquisitionProperties.SourceType.MOCK);
     }
 }

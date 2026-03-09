@@ -46,7 +46,8 @@ class IssuanceHttpClientImplTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldExecuteIssuanceRequestSuccessfully() {
+    void executeIssuanceRequest_ValidRequest_ExecutesSuccessfully() {
+        // Arrange
         PreSubmittedCredentialDataRequest request = buildRequest();
 
         mockServer.expect(requestTo(FULL_URL))
@@ -69,6 +70,7 @@ class IssuanceHttpClientImplTest {
                         """))
                 .andRespond(withStatus(HttpStatus.OK));
 
+        // Act & Assert
         assertThatCode(() -> issuanceHttpClient.executeIssuanceRequest(BEARER_TOKEN, request))
                 .doesNotThrowAnyException();
 
@@ -76,7 +78,8 @@ class IssuanceHttpClientImplTest {
     }
 
     @Test
-    void shouldThrowIssuanceExceptionWhenCoreReturnsServerError() {
+    void executeIssuanceRequest_CoreReturnsServerError_ThrowsIssuanceException() {
+        // Arrange
         PreSubmittedCredentialDataRequest request = buildRequest();
 
         mockServer.expect(requestTo(FULL_URL))
@@ -85,6 +88,7 @@ class IssuanceHttpClientImplTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
+        // Act & Assert
         assertThatThrownBy(() -> issuanceHttpClient.executeIssuanceRequest(BEARER_TOKEN, request))
                 .isInstanceOf(IssuanceException.class)
                 .hasMessage("Failed to issue credential")

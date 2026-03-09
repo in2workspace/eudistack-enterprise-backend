@@ -9,18 +9,23 @@ class YamlConfigAdapterTest {
     private final YamlConfigAdapter yamlConfigAdapter = new YamlConfigAdapter();
 
     @Test
-    void shouldReturnSameConfigurationKey() {
+    void GetConfiguration_ConfigurationKeyExists_ReturnsSameConfigurationKey() {
+        // Arrange
         String key = "app.signing.core-url";
 
+        // Act
         String result = yamlConfigAdapter.getConfiguration(key);
 
+        // Assert
         assertThat(result).isEqualTo(key);
     }
 
     @Test
-    void shouldReturnNullWhenConfigurationKeyIsNull() {
+    void GetConfiguration_ConfigurationKeyIsNull_ReturnsNull() {
+        // Act
         String result = yamlConfigAdapter.getConfiguration(null);
 
+        // Assert
         assertThat(result).isNull();
     }
 }

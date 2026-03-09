@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class SignatureConfigTest {
 
@@ -30,27 +32,31 @@ class SignatureConfigTest {
     }
 
     @Test
-    void shouldReturnResolvedCoreDomain() {
+    void getCoreDomain_ValidCoreUrl_ReturnsResolvedCoreDomain() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CORE_URL))
                 .thenReturn("https://resolved-core.example.com");
 
+        // Act
         String result = signatureConfig.getCoreDomain();
 
+        // Assert
         assertThat(result).isEqualTo("https://resolved-core.example.com");
-
         verify(yamlConfigAdapter).getConfiguration(CORE_URL);
         verifyNoMoreInteractions(yamlConfigAdapter);
     }
 
     @Test
-    void shouldReturnResolvedProvider() {
+    void getProvider_ValidProvider_ReturnsResolvedProvider() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(PROVIDER))
                 .thenReturn("resolved-provider");
 
+        // Act
         String result = signatureConfig.getProvider();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-provider");
-
         verify(yamlConfigAdapter).getConfiguration(PROVIDER);
         verifyNoMoreInteractions(yamlConfigAdapter);
     }

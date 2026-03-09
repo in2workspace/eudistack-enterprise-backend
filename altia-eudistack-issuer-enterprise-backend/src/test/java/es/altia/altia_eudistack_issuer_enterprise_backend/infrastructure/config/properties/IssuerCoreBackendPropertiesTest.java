@@ -16,7 +16,10 @@ class IssuerCoreBackendPropertiesTest {
             .withUserConfiguration(TestConfig.class);
 
     @Test
-    void shouldBindIssuerCoreBackendPropertiesSuccessfully() {
+    void IssuerCoreBackendProperties_UrlIsValid_BindsSuccessfully() {
+        // Arrange
+
+        // Act & Assert
         contextRunner
                 .withPropertyValues("app.issuer-core-backend.url=https://issuer-core.example.com")
                 .run(context -> {
@@ -29,7 +32,10 @@ class IssuerCoreBackendPropertiesTest {
     }
 
     @Test
-    void shouldFailWhenUrlIsBlank() {
+    void IssuerCoreBackendProperties_UrlIsBlank_FailsValidation() {
+        // Arrange
+
+        // Act & Assert
         contextRunner
                 .withPropertyValues("app.issuer-core-backend.url=")
                 .run(context -> {
@@ -41,7 +47,10 @@ class IssuerCoreBackendPropertiesTest {
     }
 
     @Test
-    void shouldFailWhenUrlIsNotValid() {
+    void IssuerCoreBackendProperties_UrlIsNotValid_FailsValidation() {
+        // Arrange
+
+        // Act & Assert
         contextRunner
                 .withPropertyValues("app.issuer-core-backend.url=not-a-valid-url")
                 .run(context -> {

@@ -14,8 +14,9 @@ import java.time.Duration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
@@ -33,42 +34,38 @@ class IssuanceConfigTest {
     private IssuanceConfig issuanceConfig;
 
     @Test
-    void shouldPushSigningConfigAtStartupWithCertificateInfoCacheTtl() throws Exception {
+    void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully() throws Exception {
+        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
 
+        // Act
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
+        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
 
-        assertThatCode(() -> runner.run(null))
-                .doesNotThrowAnyException();
-
+        // Assert
         SigningConfigPushRequest request = captureSentRequest();
-
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
-        assertThat(request.remoteSignature().certificateInfoCacheTtl())
-                .isEqualTo("PT10M");
-
+        assertThat(request.remoteSignature().certificateInfoCacheTtl()).isEqualTo("PT10M");
         verifyNoMoreInteractions(signingConfigHttpClient);
     }
 
     @Test
-    void shouldPushSigningConfigAtStartupWithNullCertificateInfoCacheTtl() throws Exception {
+    void pushSigningConfigAtStartup_WithNullCertificateInfoCacheTtl_PushesRequestWithNullTtl() throws Exception {
+        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(null);
 
+        // Act
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
+        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
 
-        assertThatCode(() -> runner.run(null))
-                .doesNotThrowAnyException();
-
+        // Assert
         SigningConfigPushRequest request = captureSentRequest();
-
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
-        assertThat(request.remoteSignature().certificateInfoCacheTtl())
-                .isNull();
-
+        assertThat(request.remoteSignature().certificateInfoCacheTtl()).isNull();
         verifyNoMoreInteractions(signingConfigHttpClient);
     }
 

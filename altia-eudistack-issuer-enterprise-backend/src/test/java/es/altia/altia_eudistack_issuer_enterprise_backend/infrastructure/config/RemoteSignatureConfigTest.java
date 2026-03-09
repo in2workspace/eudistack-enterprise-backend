@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,74 +44,98 @@ class RemoteSignatureConfigTest {
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureDomain() {
+    void getRemoteSignatureDomain_ValidUrl_ReturnsResolvedDomain() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(URL)).thenReturn("https://resolved.example.com");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureDomain();
 
+        // Assert
         assertThat(result).isEqualTo("https://resolved.example.com");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureSignPath() {
+    void getRemoteSignatureSignPath_ValidSignPath_ReturnsResolvedSignPath() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(SIGN_PATH)).thenReturn("/resolved-sign");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureSignPath();
 
+        // Assert
         assertThat(result).isEqualTo("/resolved-sign");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureClientId() {
+    void getRemoteSignatureClientId_ValidClientId_ReturnsResolvedClientId() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CLIENT_ID)).thenReturn("resolved-client-id");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureClientId();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-client-id");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureClientSecret() {
+    void getRemoteSignatureClientSecret_ValidClientSecret_ReturnsResolvedClientSecret() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CLIENT_SECRET)).thenReturn("resolved-client-secret");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureClientSecret();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-client-secret");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureCredentialId() {
+    void getRemoteSignatureCredentialId_ValidCredentialId_ReturnsResolvedCredentialId() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CREDENTIAL_ID)).thenReturn("resolved-credential-id");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureCredentialId();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-credential-id");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureCredentialPassword() {
+    void getRemoteSignatureCredentialPassword_ValidCredentialPassword_ReturnsResolvedCredentialPassword() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CREDENTIAL_PASSWORD)).thenReturn("resolved-credential-password");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureCredentialPassword();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-credential-password");
     }
 
     @Test
-    void shouldReturnResolvedRemoteSignatureType() {
+    void getRemoteSignatureType_ValidType_ReturnsResolvedType() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(TYPE)).thenReturn("resolved-type");
 
+        // Act
         String result = remoteSignatureConfig.getRemoteSignatureType();
 
+        // Assert
         assertThat(result).isEqualTo("resolved-type");
     }
 
     @Test
-    void shouldReturnParsedCertificateInfoCacheTtl() {
+    void getCertificateInfoCacheTtl_ValidCacheTtl_ReturnsParsedDuration() {
+        // Arrange
         when(yamlConfigAdapter.getConfiguration(CACHE_TTL)).thenReturn("PT30M");
 
+        // Act
         Duration ttl = remoteSignatureConfig.getCertificateInfoCacheTtl();
 
+        // Assert
         assertThat(ttl).isEqualTo(Duration.ofMinutes(30));
     }
 }

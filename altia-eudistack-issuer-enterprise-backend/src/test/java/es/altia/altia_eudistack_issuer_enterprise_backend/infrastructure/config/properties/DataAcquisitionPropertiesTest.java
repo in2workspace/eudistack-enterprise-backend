@@ -10,7 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DataAcquisitionPropertiesTest {
 
     @Test
-    void shouldCreateDataAcquisitionPropertiesWithNestedRecords() {
+    void createDataAcquisitionProperties_WithNestedRecords_PropertiesMatchExpectedValues() {
+        // Arrange
         DataAcquisitionProperties.Mapping mapping = new DataAcquisitionProperties.Mapping(
                 "givenName",
                 "sn",
@@ -36,8 +37,10 @@ class DataAcquisitionPropertiesTest {
                 retry
         );
 
+        // Act
         DataAcquisitionProperties properties = new DataAcquisitionProperties(List.of(source));
 
+        // Assert
         assertThat(properties.sources()).containsExactly(source);
 
         DataAcquisitionProperties.Source createdSource = properties.sources().getFirst();
@@ -62,7 +65,8 @@ class DataAcquisitionPropertiesTest {
     }
 
     @Test
-    void shouldSupportNullOptionalValuesInSource() {
+    void createDataAcquisitionProperties_WithNullOptionalSourceValues_NullFieldsReturnedCorrectly() {
+        // Arrange
         DataAcquisitionProperties.Source source = new DataAcquisitionProperties.Source(
                 "LEARCredentialEmployee",
                 DataAcquisitionProperties.SourceType.MOCK,
@@ -76,8 +80,10 @@ class DataAcquisitionPropertiesTest {
                 null
         );
 
+        // Act
         DataAcquisitionProperties properties = new DataAcquisitionProperties(List.of(source));
 
+        // Assert
         assertThat(properties.sources()).hasSize(1);
 
         DataAcquisitionProperties.Source createdSource = properties.sources().getFirst();

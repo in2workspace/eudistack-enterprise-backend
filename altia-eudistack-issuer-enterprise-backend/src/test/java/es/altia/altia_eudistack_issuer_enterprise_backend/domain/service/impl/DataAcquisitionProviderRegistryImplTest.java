@@ -8,58 +8,66 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class DataAcquisitionProviderRegistryImplTest {
 
     @Test
-    void shouldReturnProviderForRequestedType() {
+    void Get_ProviderExistsForRequestedType_ReturnsProvider() {
+        // Arrange
         DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
         when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
 
         DataAcquisitionProviderRegistryImpl registry =
                 new DataAcquisitionProviderRegistryImpl(List.of(provider));
 
+        // Act
         DataAcquisitionProvider result = registry.get(DataAcquisitionProperties.SourceType.MOCK);
 
+        // Assert
         assertThat(result).isSameAs(provider);
     }
 
     @Test
-    void shouldThrowExceptionWhenProviderTypeIsNotFound() {
+    void Get_ProviderTypeIsNull_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
         when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
 
         DataAcquisitionProviderRegistryImpl registry =
                 new DataAcquisitionProviderRegistryImpl(List.of(provider));
 
+        // Act & Assert
         assertThatThrownBy(() -> registry.get(null))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No provider found for type: null");
     }
 
     @Test
-    void shouldThrowExceptionWhenProviderTypeIsNotRegistered() {
+    void Get_ProviderTypeIsNotRegistered_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
 
         DataAcquisitionProviderRegistryImpl registry =
                 new DataAcquisitionProviderRegistryImpl(List.of(provider));
 
+        // Act & Assert
         assertThatThrownBy(() -> registry.get(DataAcquisitionProperties.SourceType.MOCK))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No provider found for type: MOCK");
     }
 
     @Test
-    void shouldThrowExceptionWhenTwoProvidersSupportTheSameType() {
+    void Constructor_TwoProvidersSupportTheSameType_ThrowsIllegalStateException() {
+        // Arrange
         DataAcquisitionProvider firstProvider = mock(DataAcquisitionProvider.class);
         DataAcquisitionProvider secondProvider = mock(DataAcquisitionProvider.class);
 
         when(firstProvider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
         when(secondProvider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
 
+        // Act & Assert
         assertThatThrownBy(() -> new DataAcquisitionProviderRegistryImpl(List.of(firstProvider, secondProvider)))
                 .isInstanceOf(IllegalStateException.class);
     }

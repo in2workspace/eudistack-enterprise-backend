@@ -22,7 +22,6 @@ import org.springframework.web.client.RestClientException;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -52,7 +51,8 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void shouldExecuteSigningConfigRequestSuccessfully() {
+    void executeSigningConfigRequest_ValidRequest_ExecutesSuccessfully() {
+        // Arrange
         SigningConfigPushRequest request = buildRequest();
 
         mockServer.expect(requestTo(FULL_URL))
@@ -72,8 +72,10 @@ class SigningConfigHttpClientImplTest {
                             "certificateInfoCacheTtl": "3600"
                           }
                         }
-                        """))
-                .andRespond(withStatus(HttpStatus.OK));
+                        """));
+
+        // Act & Assert
+        mockServer.expect(requestTo(FULL_URL)).andRespond(withStatus(HttpStatus.OK));
 
         assertThatCode(() -> signingConfigHttpClient.executeSigningConfigRequest(request))
                 .doesNotThrowAnyException();
@@ -82,7 +84,8 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void shouldThrowIssuanceExceptionWhenCoreReturnsServerError() {
+    void executeSigningConfigRequest_CoreReturnsServerError_ThrowsIssuanceException() {
+        // Arrange
         SigningConfigPushRequest request = buildRequest();
 
         mockServer.expect(requestTo(FULL_URL))
@@ -90,6 +93,7 @@ class SigningConfigHttpClientImplTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
+        // Act & Assert
         assertThatThrownBy(() -> signingConfigHttpClient.executeSigningConfigRequest(request))
                 .isInstanceOf(IssuanceException.class)
                 .hasMessage("Failed to issue credential")

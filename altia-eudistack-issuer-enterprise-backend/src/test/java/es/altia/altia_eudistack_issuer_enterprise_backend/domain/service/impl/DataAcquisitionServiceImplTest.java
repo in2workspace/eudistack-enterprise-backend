@@ -1,6 +1,5 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.domain.service.impl;
 
-
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.service.DataAcquisitionProviderRegistry;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.adapter.acquisition.DataAcquisitionProvider;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.DataAcquisitionConfiguration;
@@ -16,8 +15,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DataAcquisitionServiceImplTest {
@@ -42,7 +43,8 @@ class DataAcquisitionServiceImplTest {
     }
 
     @Test
-    void shouldAcquireDataUsingProviderResolvedFromSourceType() {
+    void Acquire_CredentialConfigurationIdExists_ReturnsAcquiredData() {
+        // Arrange
         DataAcquisitionProperties.Source source = buildSource(CREDENTIAL_CONFIGURATION_ID);
 
         when(configuration.sourcesByCredentialConfigurationId())
@@ -52,20 +54,25 @@ class DataAcquisitionServiceImplTest {
         when(provider.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
                 .thenReturn("acquired-data");
 
+        // Act
         String result = service.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
 
+        // Assert
         assertThat(result).isEqualTo("acquired-data");
 
+        verify(configuration).sourcesByCredentialConfigurationId();
         verify(providerRegistry).get(DataAcquisitionProperties.SourceType.MOCK);
         verify(provider).acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER);
         verifyNoMoreInteractions(configuration, providerRegistry, provider);
     }
 
     @Test
-    void shouldThrowExceptionWhenCredentialConfigurationIdIsUnknown() {
+    void Acquire_CredentialConfigurationIdIsUnknown_ThrowsIllegalArgumentException() {
+        // Arrange
         when(configuration.sourcesByCredentialConfigurationId())
                 .thenReturn(Map.of());
 
+        // Act & Assert
         assertThatThrownBy(() -> service.acquire(CREDENTIAL_CONFIGURATION_ID, SUBJECT_IDENTIFIER))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown credentialConfigurationId: " + CREDENTIAL_CONFIGURATION_ID);

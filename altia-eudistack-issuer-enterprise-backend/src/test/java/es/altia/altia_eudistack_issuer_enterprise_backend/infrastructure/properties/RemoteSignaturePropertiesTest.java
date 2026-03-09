@@ -7,9 +7,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RemoteSignaturePropertiesTest {
 
     @Test
-    void shouldCreateRemoteSignaturePropertiesWithProvidedValues() {
+    void createRemoteSignatureProperties_WithProvidedValues_PropertiesMatchExpectedValues() {
+        // Arrange
         RemoteSignatureProperties.Paths paths = new RemoteSignatureProperties.Paths("/signature/sign");
 
+        // Act
         RemoteSignatureProperties properties = new RemoteSignatureProperties(
                 "server",
                 "https://remote-signature.example.com",
@@ -21,6 +23,7 @@ class RemoteSignaturePropertiesTest {
                 "PT15M"
         );
 
+        // Assert
         assertThat(properties.type()).isEqualTo("server");
         assertThat(properties.url()).isEqualTo("https://remote-signature.example.com");
         assertThat(properties.paths()).isEqualTo(paths);
@@ -33,7 +36,8 @@ class RemoteSignaturePropertiesTest {
     }
 
     @Test
-    void shouldUseDefaultValuesWhenPathsAndCertificateInfoCacheTtlAreNull() {
+    void createRemoteSignatureProperties_WithNullPathsAndCacheTtl_DefaultValuesApplied() {
+        // Arrange & Act
         RemoteSignatureProperties properties = new RemoteSignatureProperties(
                 "server",
                 "https://remote-signature.example.com",
@@ -45,6 +49,7 @@ class RemoteSignaturePropertiesTest {
                 null
         );
 
+        // Assert
         assertThat(properties.type()).isEqualTo("server");
         assertThat(properties.url()).isEqualTo("https://remote-signature.example.com");
         assertThat(properties.paths()).isNotNull();
