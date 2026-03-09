@@ -24,9 +24,13 @@ public class IssuanceConfig {
             String provider = signatureConfig.getProvider();
             log.info("Enterprise starting. Selected signing provider: {}", provider);
 
-            SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
-            signingConfigHttpClient.executeSigningConfigRequest(request);
-            log.info("Signing config pushed to Core");
+            try {
+                SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
+                signingConfigHttpClient.executeSigningConfigRequest(request);
+                log.info("Signing config pushed to Core");
+            } catch (Exception ex) {
+                log.error("Failed to push signing config to Core", ex);
+            }
         };
     }
 
