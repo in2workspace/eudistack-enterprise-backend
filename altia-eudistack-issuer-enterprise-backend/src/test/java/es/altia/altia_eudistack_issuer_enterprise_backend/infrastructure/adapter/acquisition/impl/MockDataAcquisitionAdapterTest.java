@@ -8,7 +8,9 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
@@ -23,17 +25,14 @@ class MockDataAcquisitionAdapterTest {
 
     private static final String SUPPORTED_CREDENTIAL_CONFIGURATION_ID = "LEARCredentialEmployee";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
     private DataAcquisitionConfiguration dataAcquisitionConfiguration;
 
+    @InjectMocks
     private MockDataAcquisitionAdapter adapter;
-
-    @BeforeEach
-    void setUp() {
-        adapter = new MockDataAcquisitionAdapter(objectMapper, dataAcquisitionConfiguration);
-    }
 
     @Test
     void Acquire_SourceIsConfigured_ReturnsMappedCredentialSubject() throws Exception {
@@ -154,8 +153,6 @@ class MockDataAcquisitionAdapterTest {
 
     @Test
     void Supports_CredentialConfigurationIdIsSupported_ReturnsTrue() {
-        // Arrange
-
         // Act
         boolean result = adapter.supports(SUPPORTED_CREDENTIAL_CONFIGURATION_ID);
 
@@ -165,8 +162,6 @@ class MockDataAcquisitionAdapterTest {
 
     @Test
     void Supports_CredentialConfigurationIdIsNotSupported_ReturnsFalse() {
-        // Arrange
-
         // Act
         boolean result = adapter.supports("AnotherCredential");
 
@@ -176,8 +171,6 @@ class MockDataAcquisitionAdapterTest {
 
     @Test
     void GetSupportedType_AdapterIsMock_ReturnsMockSourceType() {
-        // Arrange
-
         // Act
         DataAcquisitionProperties.SourceType result = adapter.getSupportedType();
 

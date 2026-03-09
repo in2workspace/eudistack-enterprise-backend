@@ -4,9 +4,9 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.domain.service.DataAcq
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.adapter.acquisition.DataAcquisitionProvider;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.DataAcquisitionConfiguration;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.DataAcquisitionProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -35,12 +35,8 @@ class DataAcquisitionServiceImplTest {
     @Mock
     private DataAcquisitionProvider provider;
 
+    @InjectMocks
     private DataAcquisitionServiceImpl service;
-
-    @BeforeEach
-    void setUp() {
-        service = new DataAcquisitionServiceImpl(configuration, providerRegistry);
-    }
 
     @Test
     void Acquire_CredentialConfigurationIdExists_ReturnsAcquiredData() {

@@ -51,7 +51,7 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void executeSigningConfigRequest_ValidRequest_ExecutesSuccessfully() {
+    void ExecuteSigningConfigRequest_CoreReturnsOk_ExecutesSuccessfully() {
         // Arrange
         SigningConfigPushRequest request = buildRequest();
 
@@ -72,11 +72,10 @@ class SigningConfigHttpClientImplTest {
                             "certificateInfoCacheTtl": "3600"
                           }
                         }
-                        """));
+                        """))
+                .andRespond(withStatus(HttpStatus.OK));
 
         // Act & Assert
-        mockServer.expect(requestTo(FULL_URL)).andRespond(withStatus(HttpStatus.OK));
-
         assertThatCode(() -> signingConfigHttpClient.executeSigningConfigRequest(request))
                 .doesNotThrowAnyException();
 
@@ -84,7 +83,7 @@ class SigningConfigHttpClientImplTest {
     }
 
     @Test
-    void executeSigningConfigRequest_CoreReturnsServerError_ThrowsIssuanceException() {
+    void ExecuteSigningConfigRequest_CoreReturnsServerError_ThrowsIssuanceException() {
         // Arrange
         SigningConfigPushRequest request = buildRequest();
 
