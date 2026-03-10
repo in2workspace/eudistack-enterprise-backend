@@ -4,21 +4,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
-        classes = DataAcquisitionPropertiesTest.TestApplication.class,
+        classes = DataAcquisitionPropertiesTest.class,
         webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
+@EnableConfigurationProperties(DataAcquisitionProperties.class)
 class DataAcquisitionPropertiesTest {
 
     @Autowired
     private DataAcquisitionProperties properties;
-
-    @Autowired
-    private ApplicationContext context;
 
     @Test
     void bindsFromTestApplicationYaml_withNestedRecords() {
@@ -28,11 +25,6 @@ class DataAcquisitionPropertiesTest {
         assertThat(actual)
                 .usingRecursiveComparison()
                 .isEqualTo(expected);
-    }
-
-    @EnableConfigurationProperties(DataAcquisitionProperties.class)
-    static class TestApplication {
-        // Intentionally minimal: no component scanning => no startup runners => no HTTP calls
     }
 
 

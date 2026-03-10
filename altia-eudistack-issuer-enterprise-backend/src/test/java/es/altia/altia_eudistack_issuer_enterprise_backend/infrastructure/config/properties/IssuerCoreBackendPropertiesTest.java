@@ -9,11 +9,12 @@ import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@EnableConfigurationProperties(IssuerCoreBackendProperties.class)
 class IssuerCoreBackendPropertiesTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(ConfigurationPropertiesAutoConfiguration.class))
-            .withUserConfiguration(TestConfig.class);
+            .withUserConfiguration(IssuerCoreBackendPropertiesTest.class);
 
     @Test
     void IssuerCoreBackendProperties_UrlIsValid_BindsSuccessfully() {
@@ -61,8 +62,4 @@ class IssuerCoreBackendPropertiesTest {
                 });
     }
 
-    @Configuration
-    @EnableConfigurationProperties(IssuerCoreBackendProperties.class)
-    static class TestConfig {
-    }
 }
