@@ -4,33 +4,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.exception.IssuanceException;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.PreSubmittedCredentialDataRequest;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.IssuerCoreBackendProperties;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.rest.OutgoingRequestLoggingInterceptor;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.rest.RestClientConfig;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.IssuanceHttpClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @RestClientTest
-@Import(IssuanceHttpClientImpl.class)
+@Import({IssuanceHttpClientImpl.class,
+        RestClientConfig.class,
+        OutgoingRequestLoggingInterceptor.class})
 class IssuanceHttpClientImplTest {
 
     private static final String BASE_URL = "http://issuer-core-backend";
     private static final String ISSUANCES_PATH = "/backoffice/v1/issuances";
-    private static final String FULL_URL = BASE_URL + ISSUANCES_PATH;
     private static final String BEARER_TOKEN = "Bearer test-token";
 
     @Autowired
@@ -42,12 +46,20 @@ class IssuanceHttpClientImplTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockitoBean
+    private IssuerCoreBackendProperties properties;
+
+    @BeforeEach
+    void setup() {
+        when(properties.url()).thenReturn(BASE_URL);
+    }
+
     @Test
     void executeIssuanceRequest_ValidRequest_ExecutesSuccessfully() {
         // Arrange
         PreSubmittedCredentialDataRequest request = buildRequest();
 
-        mockServer.expect(requestTo(FULL_URL))
+        mockServer.expect(requestTo(ISSUANCES_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, BEARER_TOKEN))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -79,7 +91,7 @@ class IssuanceHttpClientImplTest {
         // Arrange
         PreSubmittedCredentialDataRequest request = buildRequest();
 
-        mockServer.expect(requestTo(FULL_URL))
+        mockServer.expect(requestTo(ISSUANCES_PATH))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, BEARER_TOKEN))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -108,14 +120,5 @@ class IssuanceHttpClientImplTest {
                 .issuanceNotificationUri("https://enterprise.example.com/notifications")
                 .email("user@example.com")
                 .build();
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        RestClient issuerCoreBackendRestClient(RestClient.Builder builder) {
-            return builder.baseUrl(BASE_URL).build();
-        }
     }
 }

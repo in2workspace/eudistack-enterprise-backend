@@ -4,30 +4,36 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.domain.exception.Issua
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.RemoteSignatureConfigDto;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.SigningConfigPushRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.SignatureConfig;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.IssuerCoreBackendProperties;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.rest.OutgoingRequestLoggingInterceptor;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.rest.RestClientConfig;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @RestClientTest
-@Import(SigningConfigHttpClientImpl.class)
+@Import({
+        SigningConfigHttpClientImpl.class,
+        RestClientConfig.class,
+        OutgoingRequestLoggingInterceptor.class
+})
 class SigningConfigHttpClientImplTest {
 
     private static final String CORE_DOMAIN = "http://core-backend";
@@ -43,9 +49,13 @@ class SigningConfigHttpClientImplTest {
     @MockitoBean
     private SignatureConfig signatureConfig;
 
+    @MockitoBean
+    private IssuerCoreBackendProperties properties;
+
     @BeforeEach
     void setUp() {
         when(signatureConfig.getCoreDomain()).thenReturn(CORE_DOMAIN);
+        when(properties.url()).thenReturn("http://issuer-core-backend");
     }
 
     @Test
@@ -112,14 +122,5 @@ class SigningConfigHttpClientImplTest {
         );
 
         return new SigningConfigPushRequest("provider-test", remoteSignature);
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        RestClient issuerCoreBackendRestClient(RestClient.Builder builder) {
-            return builder.build();
-        }
     }
 }
