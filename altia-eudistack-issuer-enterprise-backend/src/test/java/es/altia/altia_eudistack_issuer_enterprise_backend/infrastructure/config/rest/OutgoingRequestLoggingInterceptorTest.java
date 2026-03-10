@@ -2,6 +2,9 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
@@ -19,17 +22,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class OutgoingRequestLoggingInterceptorTest {
 
     private static final byte[] BODY = "{\"key\":\"value\"}".getBytes();
 
     private OutgoingRequestLoggingInterceptor interceptor;
+
+    @Mock
     private ClientHttpRequestExecution execution;
 
     @BeforeEach
     void setUp() {
         interceptor = new OutgoingRequestLoggingInterceptor();
-        execution = mock(ClientHttpRequestExecution.class);
     }
 
     @Test

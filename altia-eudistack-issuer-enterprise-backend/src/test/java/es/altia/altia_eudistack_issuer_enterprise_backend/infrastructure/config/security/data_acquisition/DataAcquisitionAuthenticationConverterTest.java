@@ -23,9 +23,10 @@ class DataAcquisitionAuthenticationConverterTest {
         Authentication authentication = new DataAcquisitionAuthenticationConverter().convert(request);
 
         // Assert
-        assertThat(authentication).isInstanceOf(PreAuthenticatedAuthenticationToken.class);
-        assertThat(authentication.getPrincipal()).isNull();
-        assertThat(authentication.getCredentials()).isEqualTo("test-token");
+        assertThat(authentication)
+                .isInstanceOf(PreAuthenticatedAuthenticationToken.class)
+                .extracting(Authentication::getPrincipal, Authentication::getCredentials)
+                .containsExactly(null, "test-token");
     }
 
     @Test
