@@ -1,7 +1,3 @@
-spring:
-  profiles:
-    active: dev
-
 management:
   endpoints:
     enabled-by-default: false
@@ -32,3 +28,24 @@ app:
     client-secret: client-secret
     credential-id: credential-id
     credential-password: credential-password
+  data-acquisition:
+    sources:
+      - credential-configuration-id: "LEARCredentialEmployee"
+        type: mock
+        endpoint: "ldaps://ldap.acme.com:636"
+        base-dn: "ou=employees,dc=acme,dc=com"
+        bind-dn: "cn=issuer,dc=acme,dc=com"
+        bind-password: "${LDAP_PASSWORD}"
+        subject-identifier-attribute: "employeeNumber"
+        mapping:
+          first_name: "givenName"
+          family_name: "sn"
+          email: "mail"
+          employee_id: "employeeNumber"
+        timeout: 30s
+        retry:
+          max-attempts: 3
+          backoff: 1s
+
+  issuer-core-backend:
+    url: https://issuer.red.eudistack.net
