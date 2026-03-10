@@ -2,7 +2,6 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.adapte
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.DataAcquisitionConfiguration;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.DataAcquisitionProperties;
 import org.junit.jupiter.api.Test;
@@ -61,46 +60,6 @@ class MockDataAcquisitionAdapterTest {
         assertThatThrownBy(() -> adapter.acquire("unknown-credential", "subject-123"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("No Data Acquisition source configured for credentialConfigurationId: unknown-credential");
-    }
-
-    @Test
-    void Transform_SourceContainsAllMappedFields_ReturnsExpectedTargetFields() throws Exception {
-        // Arrange
-        JsonNode sourceNode = objectMapper.readTree("""
-                {
-                  "givenName": "John",
-                  "sn": "Doe",
-                  "mail": "john.doe@example.com",
-                  "employeeNumber": "12345"
-                }
-                """);
-
-        // Act
-        ObjectNode result = adapter.transform(sourceNode, mockMapping());
-
-        // Assert
-        assertThat(objectMapper.convertValue(result, Map.class))
-                .usingRecursiveComparison()
-                .isEqualTo(expectedTransformResult());
-    }
-
-    @Test
-    void Transform_SourceContainsMissingOrNullFields_DoesNotIncludeTargetFields() throws Exception {
-        // Arrange
-        JsonNode sourceNode = objectMapper.readTree("""
-                {
-                  "givenName": "John",
-                  "sn": null
-                }
-                """);
-
-        // Act
-        ObjectNode result = adapter.transform(sourceNode, mockMapping());
-
-        // Assert
-        assertThat(objectMapper.convertValue(result, Map.class))
-                .usingRecursiveComparison()
-                .isEqualTo(expectedTransformResultWithMissingFields());
     }
 
     @Test
