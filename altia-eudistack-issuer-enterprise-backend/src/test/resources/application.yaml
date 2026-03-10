@@ -1,3 +1,7 @@
+logging:
+  level:
+    es.altia: DEBUG
+
 management:
   endpoints:
     enabled-by-default: false
