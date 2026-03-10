@@ -29,19 +29,21 @@ class RestClientConfigTest {
     }
 
     @Test
-    void IssuerCoreBackendRestClient_WhenRequestIsPerformed_SendsExpectedRequest() throws Exception {
+    void IssuerCoreBackendRestClient_WhenRequestIsPerformed_SendRequestToConfiguredBaseUrl() throws Exception {
         // Arrange
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("{\"status\":\"ok\"}")
                 .addHeader("Content-Type", "application/json"));
 
-        OutgoingRequestLoggingInterceptor interceptor = new OutgoingRequestLoggingInterceptor();
-        RestClientConfig restClientConfig = new RestClientConfig(interceptor);
+        RestClientConfig restClientConfig = new RestClientConfig(new OutgoingRequestLoggingInterceptor());
         IssuerCoreBackendProperties properties =
                 new IssuerCoreBackendProperties(mockWebServer.url("/").toString());
 
-        RestClient restClient = restClientConfig.issuerCoreBackendRestClient(properties);
+        RestClient restClient = restClientConfig.issuerCoreBackendRestClient(
+                RestClient.builder(),
+                properties
+        );
 
         // Act
         String responseBody = restClient.get()

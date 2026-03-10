@@ -12,8 +12,11 @@ public class RestClientConfig {
     private final OutgoingRequestLoggingInterceptor outgoingRequestLoggingInterceptor;
 
     @Bean
-    public RestClient issuerCoreBackendRestClient(IssuerCoreBackendProperties properties) {
-        return RestClient.builder()
+    public RestClient issuerCoreBackendRestClient(
+            RestClient.Builder builder,
+            IssuerCoreBackendProperties properties
+    ) {
+        return builder
                 .baseUrl(properties.url())
                 .requestInterceptor(outgoingRequestLoggingInterceptor)
                 .build();
