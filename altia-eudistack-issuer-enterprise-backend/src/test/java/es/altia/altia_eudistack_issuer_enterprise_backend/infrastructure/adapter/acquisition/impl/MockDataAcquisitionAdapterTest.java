@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.DataAcquisitionConfiguration;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.DataAcquisitionProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +13,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,50 +37,18 @@ class MockDataAcquisitionAdapterTest {
     @Test
     void Acquire_SourceIsConfigured_ReturnsMappedCredentialSubject() throws Exception {
         // Arrange
-        DataAcquisitionProperties.Mapping mapping = new DataAcquisitionProperties.Mapping(
-                "givenName",
-                "sn",
-                "mail",
-                "employeeNumber"
-        );
-
-        DataAcquisitionProperties.Source source = new DataAcquisitionProperties.Source(
-                SUPPORTED_CREDENTIAL_CONFIGURATION_ID,
-                DataAcquisitionProperties.SourceType.MOCK,
-                null,
-                null,
-                null,
-                null,
-                null,
-                mapping,
-                Duration.ofSeconds(5),
-                null
-        );
-
         when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
-                .thenReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, source));
+                .thenReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, mockSource()));
 
         // Act
         String result = adapter.acquire(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, "subject-123");
 
         // Assert
         JsonNode root = objectMapper.readTree(result);
-        JsonNode mandatee = root.get("mandatee");
 
-        assertThat(mandatee).isNotNull();
-        assertThat(mandatee.get("firstName").asText()).isEqualTo("John");
-        assertThat(mandatee.get("lastName").asText()).isEqualTo("Doe");
-        assertThat(mandatee.get("email").asText()).isEqualTo("albert.rodriguez@altia.es");
-        assertThat(mandatee.get("employeeId").asText()).isEqualTo("1234567890");
-
-        JsonNode mandator = root.get("mandator");
-        assertThat(mandator).isNotNull();
-        assertThat(mandator.get("organization").asText()).isEqualTo("ALTIA CONSULTORES, SA");
-
-        JsonNode power = root.get("power");
-        assertThat(power).isNotNull();
-        assertThat(power.isArray()).isTrue();
-        assertThat(power).hasSize(2);
+        assertThat(objectMapper.convertValue(root, Map.class))
+                .usingRecursiveComparison()
+                .isEqualTo(expectedAcquireResult());
     }
 
     @Test
@@ -107,21 +75,13 @@ class MockDataAcquisitionAdapterTest {
                 }
                 """);
 
-        DataAcquisitionProperties.Mapping mapping = new DataAcquisitionProperties.Mapping(
-                "givenName",
-                "sn",
-                "mail",
-                "employeeNumber"
-        );
-
         // Act
-        ObjectNode result = adapter.transform(sourceNode, mapping);
+        ObjectNode result = adapter.transform(sourceNode, mockMapping());
 
         // Assert
-        assertThat(result.get("firstName").asText()).isEqualTo("John");
-        assertThat(result.get("lastName").asText()).isEqualTo("Doe");
-        assertThat(result.get("email").asText()).isEqualTo("john.doe@example.com");
-        assertThat(result.get("employeeId").asText()).isEqualTo("12345");
+        assertThat(objectMapper.convertValue(result, Map.class))
+                .usingRecursiveComparison()
+                .isEqualTo(expectedTransformResult());
     }
 
     @Test
@@ -134,21 +94,13 @@ class MockDataAcquisitionAdapterTest {
                 }
                 """);
 
-        DataAcquisitionProperties.Mapping mapping = new DataAcquisitionProperties.Mapping(
-                "givenName",
-                "sn",
-                "mail",
-                "employeeNumber"
-        );
-
         // Act
-        ObjectNode result = adapter.transform(sourceNode, mapping);
+        ObjectNode result = adapter.transform(sourceNode, mockMapping());
 
         // Assert
-        assertThat(result.get("firstName").asText()).isEqualTo("John");
-        assertThat(result.has("lastName")).isFalse();
-        assertThat(result.has("email")).isFalse();
-        assertThat(result.has("employeeId")).isFalse();
+        assertThat(objectMapper.convertValue(result, Map.class))
+                .usingRecursiveComparison()
+                .isEqualTo(expectedTransformResultWithMissingFields());
     }
 
     @Test
@@ -176,5 +128,78 @@ class MockDataAcquisitionAdapterTest {
 
         // Assert
         assertThat(result).isEqualTo(DataAcquisitionProperties.SourceType.MOCK);
+    }
+
+    private DataAcquisitionProperties.Source mockSource() {
+        return new DataAcquisitionProperties.Source(
+                SUPPORTED_CREDENTIAL_CONFIGURATION_ID,
+                DataAcquisitionProperties.SourceType.MOCK,
+                null,
+                null,
+                null,
+                null,
+                null,
+                mockMapping(),
+                Duration.ofSeconds(5),
+                null
+        );
+    }
+
+    private DataAcquisitionProperties.Mapping mockMapping() {
+        return new DataAcquisitionProperties.Mapping(
+                "givenName",
+                "sn",
+                "mail",
+                "employeeNumber"
+        );
+    }
+
+    private Map<String, Object> expectedAcquireResult() {
+        return Map.of(
+                "mandatee", Map.of(
+                        "firstName", "John",
+                        "lastName", "Doe",
+                        "email", "albert.rodriguez@altia.es",
+                        "employeeId", "1234567890"
+                ),
+                "mandator", Map.of(
+                        "commonName", "Constantino Fernández Pico",
+                        "country", "ES",
+                        "email", "tino.fernandez@altia.es",
+                        "id", "did:elsi:VATES-A15456585",
+                        "organization", "ALTIA CONSULTORES, SA",
+                        "organizationIdentifier", "VATES-A15456585",
+                        "serialNumber", "32771385L"
+                ),
+                "power", List.of(
+                        Map.of(
+                                "action", List.of("Execute"),
+                                "domain", "DOME",
+                                "function", "Onboarding",
+                                "type", "domain"
+                        ),
+                        Map.of(
+                                "action", List.of("Create", "Update", "Delete"),
+                                "domain", "DOME",
+                                "function", "ProductOffering",
+                                "type", "domain"
+                        )
+                )
+        );
+    }
+
+    private Map<String, Object> expectedTransformResult() {
+        return Map.of(
+                "firstName", "John",
+                "lastName", "Doe",
+                "email", "john.doe@example.com",
+                "employeeId", "12345"
+        );
+    }
+
+    private Map<String, Object> expectedTransformResultWithMissingFields() {
+        return Map.of(
+                "firstName", "John"
+        );
     }
 }

@@ -2,7 +2,11 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.domain.service.impl;
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.adapter.acquisition.DataAcquisitionProvider;
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.DataAcquisitionProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
@@ -11,17 +15,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class DataAcquisitionProviderRegistryImplTest {
+
+    @Mock
+    private DataAcquisitionProvider provider;
+
+    private DataAcquisitionProviderRegistryImpl registry;
+
+    @BeforeEach
+    void setUp() {
+        when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
+        registry = new DataAcquisitionProviderRegistryImpl(List.of(provider));
+    }
 
     @Test
     void Get_ProviderExistsForRequestedType_ReturnsProvider() {
-        // Arrange
-        DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
-        when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
-
-        DataAcquisitionProviderRegistryImpl registry =
-                new DataAcquisitionProviderRegistryImpl(List.of(provider));
-
         // Act
         DataAcquisitionProvider result = registry.get(DataAcquisitionProperties.SourceType.MOCK);
 
@@ -31,13 +40,6 @@ class DataAcquisitionProviderRegistryImplTest {
 
     @Test
     void Get_ProviderTypeIsNull_ThrowsIllegalStateException() {
-        // Arrange
-        DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
-        when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
-
-        DataAcquisitionProviderRegistryImpl registry =
-                new DataAcquisitionProviderRegistryImpl(List.of(provider));
-
         // Act & Assert
         assertThatThrownBy(() -> registry.get(null))
                 .isInstanceOf(IllegalStateException.class)
@@ -47,13 +49,11 @@ class DataAcquisitionProviderRegistryImplTest {
     @Test
     void Get_ProviderTypeIsNotRegistered_ThrowsIllegalStateException() {
         // Arrange
-        DataAcquisitionProvider provider = mock(DataAcquisitionProvider.class);
-
-        DataAcquisitionProviderRegistryImpl registry =
-                new DataAcquisitionProviderRegistryImpl(List.of(provider));
+        DataAcquisitionProviderRegistryImpl emptyRegistry =
+                new DataAcquisitionProviderRegistryImpl(List.of());
 
         // Act & Assert
-        assertThatThrownBy(() -> registry.get(DataAcquisitionProperties.SourceType.MOCK))
+        assertThatThrownBy(() -> emptyRegistry.get(DataAcquisitionProperties.SourceType.MOCK))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No provider found for type: MOCK");
     }
@@ -61,14 +61,13 @@ class DataAcquisitionProviderRegistryImplTest {
     @Test
     void Constructor_TwoProvidersSupportTheSameType_ThrowsIllegalStateException() {
         // Arrange
-        DataAcquisitionProvider firstProvider = mock(DataAcquisitionProvider.class);
         DataAcquisitionProvider secondProvider = mock(DataAcquisitionProvider.class);
 
-        when(firstProvider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
+        when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
         when(secondProvider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
 
         // Act & Assert
-        assertThatThrownBy(() -> new DataAcquisitionProviderRegistryImpl(List.of(firstProvider, secondProvider)))
+        assertThatThrownBy(() -> new DataAcquisitionProviderRegistryImpl(List.of(provider, secondProvider)))
                 .isInstanceOf(IllegalStateException.class);
     }
 }
