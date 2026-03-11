@@ -1,5 +1,6 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.controller;
 
+import org.springframework.web.bind.annotation.*;
 import es.altia.altia_eudistack_issuer_enterprise_backend.application.workflow.DataAcquisitionWorkflow;
 import es.altia.altia_eudistack_issuer_enterprise_backend.domain.model.dto.DataAcquisitionRequest;
 import jakarta.validation.Valid;
@@ -9,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
 
 import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
 
