@@ -1,4 +1,4 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

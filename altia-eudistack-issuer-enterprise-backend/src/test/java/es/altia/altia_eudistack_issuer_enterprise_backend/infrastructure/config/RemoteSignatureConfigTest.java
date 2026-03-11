@@ -1,7 +1,7 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.adapter.impl.YamlConfigAdapter;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.RemoteSignatureProperties;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.RemoteSignatureProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,7 +1,7 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config;
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.adapter.impl.YamlConfigAdapter;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.SignatureProperties;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties.SignatureProperties;
 import org.springframework.stereotype.Component;
 
 
