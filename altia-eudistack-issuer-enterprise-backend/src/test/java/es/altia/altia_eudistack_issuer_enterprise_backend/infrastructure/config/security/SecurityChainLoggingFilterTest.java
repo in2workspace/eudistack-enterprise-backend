@@ -4,26 +4,32 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
+import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class SecurityChainLoggingFilterTest {
 
     private SecurityChainLoggingFilter filter;
-    private FilterChain filterChain;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
+
+    @Mock
+    private FilterChain filterChain;
 
     @BeforeEach
     void setUp() {
         filter = new SecurityChainLoggingFilter("test-chain");
-        filterChain = mock(FilterChain.class);
+
         request = new MockHttpServletRequest("GET", "/procedures/acquire");
         response = new MockHttpServletResponse();
     }

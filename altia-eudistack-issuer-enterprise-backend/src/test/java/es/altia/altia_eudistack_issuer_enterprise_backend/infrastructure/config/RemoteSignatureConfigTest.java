@@ -4,13 +4,16 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.RemoteSignatureProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class RemoteSignatureConfigTest {
 
     private static final String TYPE = "server";
@@ -22,12 +25,13 @@ class RemoteSignatureConfigTest {
     private static final String CREDENTIAL_PASSWORD = "credential-password";
     private static final String CACHE_TTL = "PT15M";
 
-    private YamlConfigAdapter yamlConfigAdapter;
     private RemoteSignatureConfig remoteSignatureConfig;
+
+    @Mock
+    private YamlConfigAdapter yamlConfigAdapter;
 
     @BeforeEach
     void setUp() {
-        yamlConfigAdapter = mock(YamlConfigAdapter.class);
 
         RemoteSignatureProperties remoteSignatureProperties = new RemoteSignatureProperties(
                 TYPE,

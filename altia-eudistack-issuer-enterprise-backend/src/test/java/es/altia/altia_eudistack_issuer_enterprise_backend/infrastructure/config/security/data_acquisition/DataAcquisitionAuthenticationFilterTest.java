@@ -2,6 +2,9 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,17 +18,24 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 class DataAcquisitionAuthenticationFilterTest {
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private AuthenticationConverter authenticationConverter;
+
+    @Mock
+    private RequestMatcher requestMatcher;
+
+    @Mock
+    private Authentication authentication;
 
     @Test
     void Constructor_RequestMatcherIsProvided_ConfiguresRequestMatcher() {
-        // Arrange
-        AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-        AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
-        RequestMatcher requestMatcher = mock(RequestMatcher.class);
-
         // Act
         DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
                 authenticationManager,
@@ -41,10 +51,6 @@ class DataAcquisitionAuthenticationFilterTest {
     @Test
     void Constructor_FilterIsCreated_ConfiguresSuccessHandler() throws ServletException, IOException {
         // Arrange
-        AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-        AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
-        RequestMatcher requestMatcher = mock(RequestMatcher.class);
-
         DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
                 authenticationManager,
                 authenticationConverter,
@@ -56,7 +62,6 @@ class DataAcquisitionAuthenticationFilterTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/procedures/acquire");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        Authentication authentication = mock(Authentication.class);
 
         // Act
         successHandler.onAuthenticationSuccess(request, response, authentication);
@@ -68,10 +73,6 @@ class DataAcquisitionAuthenticationFilterTest {
     @Test
     void Constructor_FilterIsCreated_ConfiguresFailureHandlerThatReturnsUnauthorized() throws ServletException, IOException {
         // Arrange
-        AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-        AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
-        RequestMatcher requestMatcher = mock(RequestMatcher.class);
-
         DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
                 authenticationManager,
                 authenticationConverter,

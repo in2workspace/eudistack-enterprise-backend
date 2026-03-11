@@ -2,21 +2,26 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class DataAcquisitionAuthenticationConverterTest {
+
+    @Mock
+    private HttpServletRequest request;
 
     @Test
     void Convert_AuthorizationHeaderContainsBearerToken_ReturnsPreAuthenticatedAuthenticationToken() {
         // Arrange
-        HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("Authorization")).thenReturn("Bearer test-token");
 
         // Act
@@ -32,7 +37,6 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderIsMissing_ThrowsBadCredentialsException() {
         // Arrange
-        HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("Authorization")).thenReturn(null);
 
         // Act & Assert
@@ -44,7 +48,6 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderDoesNotStartWithBearerPrefix_ThrowsBadCredentialsException() {
         // Arrange
-        HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("Authorization")).thenReturn("Basic abc123");
 
         // Act & Assert
@@ -56,7 +59,6 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderContainsOnlyBearerPrefix_ReturnsEmptyToken() {
         // Arrange
-        HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("Authorization")).thenReturn("Bearer ");
 
         // Act

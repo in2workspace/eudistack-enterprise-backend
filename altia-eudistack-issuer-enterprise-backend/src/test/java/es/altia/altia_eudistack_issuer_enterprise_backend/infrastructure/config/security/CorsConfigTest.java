@@ -23,10 +23,17 @@ class CorsConfigTest {
         CorsConfiguration configuration = source.getCorsConfiguration(request);
 
         // Assert
-        assertThat(configuration).isNotNull();
-        assertThat(configuration.getAllowedOrigins()).containsExactly("https://proto.eudistack.net");
-        assertThat(configuration.getAllowedMethods()).containsExactly("POST", "OPTIONS");
-        assertThat(configuration.getAllowedHeaders()).containsExactly("*");
-        assertThat(configuration.getAllowCredentials()).isTrue();
+        assertThat(configuration)
+                .isNotNull()
+                .satisfies(config -> {
+                    assertThat(config.getAllowedOrigins())
+                            .containsExactly("https://proto.eudistack.net");
+                    assertThat(config.getAllowedMethods())
+                            .containsExactly("POST", "OPTIONS");
+                    assertThat(config.getAllowedHeaders())
+                            .containsExactly("*");
+                    assertThat(config.getAllowCredentials())
+                            .isTrue();
+                });
     }
 }

@@ -4,21 +4,26 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.
 import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties.SignatureProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class SignatureConfigTest {
 
     private static final String CORE_URL = "https://issuer-core.example.com";
     private static final String PROVIDER = "remote-signature";
 
-    private YamlConfigAdapter yamlConfigAdapter;
     private SignatureConfig signatureConfig;
+
+    @Mock
+    private YamlConfigAdapter yamlConfigAdapter;
 
     @BeforeEach
     void setUp() {
-        yamlConfigAdapter = mock(YamlConfigAdapter.class);
 
         SignatureProperties signatureProperties = new SignatureProperties(
                 PROVIDER,

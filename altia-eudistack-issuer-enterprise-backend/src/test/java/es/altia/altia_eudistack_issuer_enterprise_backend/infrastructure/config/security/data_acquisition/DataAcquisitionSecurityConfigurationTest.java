@@ -20,7 +20,6 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionAuthenticationConverter();
 
         // Assert
-        assertThat(converter).isNotNull();
         assertThat(converter).isInstanceOf(DataAcquisitionAuthenticationConverter.class);
     }
 
@@ -48,7 +47,6 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionIssuanceAuthenticationManager(provider);
 
         // Assert
-        assertThat(manager).isNotNull();
         assertThat(manager).isInstanceOf(ProviderManager.class);
     }
 
@@ -67,7 +65,6 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionIssuanceAuthenticationFilter(manager, converter);
 
         // Assert
-        assertThat(filter).isNotNull();
         assertThat(filter).isInstanceOf(DataAcquisitionAuthenticationFilter.class);
     }
 }
