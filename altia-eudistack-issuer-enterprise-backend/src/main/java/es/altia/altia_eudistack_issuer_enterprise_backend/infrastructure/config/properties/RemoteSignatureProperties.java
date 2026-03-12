@@ -1,4 +1,4 @@
-package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.properties;
+package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.properties;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +25,7 @@ public record RemoteSignatureProperties(
     @ConstructorBinding
     public RemoteSignatureProperties(String type, String url, Paths paths, String clientId, String clientSecret, String credentialId, String credentialPassword, String certificateInfoCacheTtl) {
         this.url = url;
+        // TODO: This fallback conflicts with @NotBlank on signPath; either allow null paths or use a valid default value.
         this.paths = Optional.ofNullable(paths).orElse(new Paths(""));
         this.clientId = clientId;
         this.clientSecret = clientSecret;

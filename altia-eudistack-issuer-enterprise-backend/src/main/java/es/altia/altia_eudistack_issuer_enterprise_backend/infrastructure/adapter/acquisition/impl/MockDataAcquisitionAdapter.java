@@ -106,7 +106,7 @@ public class MockDataAcquisitionAdapter implements DataAcquisitionProvider {
         }
     }
 
-    public ObjectNode transform(JsonNode sourceNode, DataAcquisitionProperties.Mapping mapping) {
+    private ObjectNode transform(JsonNode sourceNode, DataAcquisitionProperties.Mapping mapping) {
 
         ObjectNode target = objectMapper.createObjectNode();
 

@@ -2,6 +2,7 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -11,7 +12,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 public class DataAcquisitionAuthenticationConverter
         implements AuthenticationConverter {
 
-    private static final String AUTHORIZATION = "Authorization";
+    private static final String AUTHORIZATION = HttpHeaders.AUTHORIZATION;
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
