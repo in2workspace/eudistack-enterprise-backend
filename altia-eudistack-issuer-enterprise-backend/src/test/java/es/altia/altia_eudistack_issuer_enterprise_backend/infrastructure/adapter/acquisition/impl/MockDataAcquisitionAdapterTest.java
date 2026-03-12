@@ -45,7 +45,12 @@ class MockDataAcquisitionAdapterTest {
         // Assert
         JsonNode root = objectMapper.readTree(result);
 
-        assertThat(objectMapper.convertValue(root, Map.class))
+        Map<String, Object> actual = objectMapper.convertValue(
+                root,
+                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {}
+        );
+
+        assertThat(actual)
                 .usingRecursiveComparison()
                 .isEqualTo(expectedAcquireResult());
     }
@@ -144,21 +149,6 @@ class MockDataAcquisitionAdapterTest {
                                 "type", "domain"
                         )
                 )
-        );
-    }
-
-    private Map<String, Object> expectedTransformResult() {
-        return Map.of(
-                "firstName", "John",
-                "lastName", "Doe",
-                "email", "john.doe@example.com",
-                "employeeId", "12345"
-        );
-    }
-
-    private Map<String, Object> expectedTransformResultWithMissingFields() {
-        return Map.of(
-                "firstName", "John"
         );
     }
 }

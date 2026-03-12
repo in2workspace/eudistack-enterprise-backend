@@ -12,7 +12,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +19,9 @@ class DataAcquisitionProviderRegistryImplTest {
 
     @Mock
     private DataAcquisitionProvider provider;
+
+    @Mock
+    private DataAcquisitionProvider secondProvider;
 
     private DataAcquisitionProviderRegistryImpl registry;
 
@@ -61,13 +63,12 @@ class DataAcquisitionProviderRegistryImplTest {
     @Test
     void Constructor_TwoProvidersSupportTheSameType_ThrowsIllegalStateException() {
         // Arrange
-        DataAcquisitionProvider secondProvider = mock(DataAcquisitionProvider.class);
-
         when(provider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
         when(secondProvider.getSupportedType()).thenReturn(DataAcquisitionProperties.SourceType.MOCK);
+        List<DataAcquisitionProvider> providers = List.of(provider, secondProvider);
 
         // Act & Assert
-        assertThatThrownBy(() -> new DataAcquisitionProviderRegistryImpl(List.of(provider, secondProvider)))
+        assertThatThrownBy(() -> new DataAcquisitionProviderRegistryImpl(providers))
                 .isInstanceOf(IllegalStateException.class);
     }
 }

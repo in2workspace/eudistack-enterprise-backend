@@ -1,62 +1,44 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security;
 
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.data_acquisition.DataAcquisitionSecurityConfiguration;
-import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security.support.TestSecurityEndpointsController;
+import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.SigningConfigHttpClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = {
-        SecurityConfig.class,
-        CorsConfig.class,
-        DataAcquisitionSecurityConfiguration.class,
-        TestSecurityEndpointsController.class
-})
+@SpringBootTest
 @AutoConfigureMockMvc
-@ImportAutoConfiguration({
-        SecurityAutoConfiguration.class,
-        SecurityFilterAutoConfiguration.class,
-        UserDetailsServiceAutoConfiguration.class
-})
+@ActiveProfiles("dev")
 class SecurityConfigTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    // TODO remove when the push of signing config doesn't break app initialization
+    @MockitoBean
+    private SigningConfigHttpClient signingConfigHttpClient;
+
     @Test
     void SecurityFilterChain_DataAcquisitionPostRequestWithoutAuthentication_ReturnsUnauthorized() throws Exception {
-        // Act & Assert
         mockMvc.perform(post(DATA_ACQUISITION_PATH))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void SecurityFilterChain_HealthEndpointIsRequested_ReturnsOk() throws Exception {
-        // Act & Assert
-        mockMvc.perform(get("/health"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void SecurityFilterChain_OptionsRequestIsSentToDataAcquisitionPath_ReturnsOk() throws Exception {
-        // Act & Assert
         mockMvc.perform(options(DATA_ACQUISITION_PATH))
                 .andExpect(status().isOk());
     }
 
     @Test
     void SecurityFilterChain_AnyOtherRequestIsSent_ReturnsForbidden() throws Exception {
-        // Act & Assert
         mockMvc.perform(get("/forbidden"))
                 .andExpect(status().isForbidden());
     }

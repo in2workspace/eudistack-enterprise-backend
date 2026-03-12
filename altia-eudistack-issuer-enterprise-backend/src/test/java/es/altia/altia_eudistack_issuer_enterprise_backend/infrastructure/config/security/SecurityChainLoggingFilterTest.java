@@ -2,7 +2,6 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -19,26 +18,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 class SecurityChainLoggingFilterTest {
 
-    private SecurityChainLoggingFilter filter;
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+    private final SecurityChainLoggingFilter filter = new SecurityChainLoggingFilter("test-chain");
 
     @Mock
     private FilterChain filterChain;
 
-    @BeforeEach
-    void setUp() {
-        filter = new SecurityChainLoggingFilter("test-chain");
-
-        request = new MockHttpServletRequest("GET", "/procedures/acquire");
-        response = new MockHttpServletResponse();
-    }
-
     @Test
     void DoFilter_FilterChainSucceeds_DelegatesToFilterChain() throws ServletException, IOException {
-        // Arrange
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/procedures/acquire");
+        MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Act & Assert
         assertThatCode(() -> filter.doFilter(request, response, filterChain))
                 .doesNotThrowAnyException();
 
@@ -48,11 +37,12 @@ class SecurityChainLoggingFilterTest {
 
     @Test
     void DoFilter_FilterChainThrowsServletException_PropagatesServletException() throws Exception {
-        // Arrange
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/procedures/acquire");
+        MockHttpServletResponse response = new MockHttpServletResponse();
         ServletException exception = new ServletException("Filter chain failed");
+
         doThrow(exception).when(filterChain).doFilter(request, response);
 
-        // Act & Assert
         assertThatThrownBy(() -> filter.doFilter(request, response, filterChain))
                 .isSameAs(exception);
 
@@ -62,11 +52,12 @@ class SecurityChainLoggingFilterTest {
 
     @Test
     void DoFilter_FilterChainThrowsIOException_PropagatesIOException() throws Exception {
-        // Arrange
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/procedures/acquire");
+        MockHttpServletResponse response = new MockHttpServletResponse();
         IOException exception = new IOException("I/O failure");
+
         doThrow(exception).when(filterChain).doFilter(request, response);
 
-        // Act & Assert
         assertThatThrownBy(() -> filter.doFilter(request, response, filterChain))
                 .isSameAs(exception);
 

@@ -3,6 +3,7 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -34,15 +35,11 @@ class DataAcquisitionAuthenticationFilterTest {
     @Mock
     private Authentication authentication;
 
+    @InjectMocks
+    private DataAcquisitionAuthenticationFilter filter;
+
     @Test
     void Constructor_RequestMatcherIsProvided_ConfiguresRequestMatcher() {
-        // Act
-        DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
-                authenticationManager,
-                authenticationConverter,
-                requestMatcher
-        );
-
         // Assert
         Object configuredRequestMatcher = ReflectionTestUtils.getField(filter, "requestMatcher");
         assertThat(configuredRequestMatcher).isSameAs(requestMatcher);
@@ -51,17 +48,13 @@ class DataAcquisitionAuthenticationFilterTest {
     @Test
     void Constructor_FilterIsCreated_ConfiguresSuccessHandler() throws ServletException, IOException {
         // Arrange
-        DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
-                authenticationManager,
-                authenticationConverter,
-                requestMatcher
-        );
-
         AuthenticationSuccessHandler successHandler =
                 (AuthenticationSuccessHandler) ReflectionTestUtils.getField(filter, "successHandler");
 
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/procedures/acquire");
         MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThat(successHandler).isNotNull();
 
         // Act
         successHandler.onAuthenticationSuccess(request, response, authentication);
@@ -73,17 +66,13 @@ class DataAcquisitionAuthenticationFilterTest {
     @Test
     void Constructor_FilterIsCreated_ConfiguresFailureHandlerThatReturnsUnauthorized() throws ServletException, IOException {
         // Arrange
-        DataAcquisitionAuthenticationFilter filter = new DataAcquisitionAuthenticationFilter(
-                authenticationManager,
-                authenticationConverter,
-                requestMatcher
-        );
-
         AuthenticationFailureHandler failureHandler =
                 (AuthenticationFailureHandler) ReflectionTestUtils.getField(filter, "failureHandler");
 
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/procedures/acquire");
         MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThat(failureHandler).isNotNull();
 
         // Act
         failureHandler.onAuthenticationFailure(

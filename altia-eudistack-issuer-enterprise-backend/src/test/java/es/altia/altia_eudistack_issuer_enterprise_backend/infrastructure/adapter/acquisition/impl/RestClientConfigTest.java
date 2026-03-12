@@ -9,13 +9,25 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 class RestClientConfigTest {
 
     private MockWebServer mockWebServer;
+
+    @Spy
+    private OutgoingRequestLoggingInterceptor outgoingRequestLoggingInterceptor =
+            new OutgoingRequestLoggingInterceptor();
+
+    @InjectMocks
+    private RestClientConfig restClientConfig;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -36,7 +48,6 @@ class RestClientConfigTest {
                 .setBody("{\"status\":\"ok\"}")
                 .addHeader("Content-Type", "application/json"));
 
-        RestClientConfig restClientConfig = new RestClientConfig(new OutgoingRequestLoggingInterceptor());
         IssuerCoreBackendProperties properties =
                 new IssuerCoreBackendProperties(mockWebServer.url("/").toString());
 

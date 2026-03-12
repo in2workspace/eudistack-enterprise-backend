@@ -12,9 +12,9 @@ import org.springframework.boot.ApplicationRunner;
 
 import java.time.Duration;
 
+import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
@@ -32,7 +32,7 @@ class IssuanceConfigTest {
     private IssuanceConfig issuanceConfig;
 
     @Test
-    void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully() throws Exception {
+    void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully(){
         // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
@@ -50,7 +50,7 @@ class IssuanceConfigTest {
     }
 
     @Test
-    void pushSigningConfigAtStartup_WithNullCertificateInfoCacheTtl_PushesRequestWithNullTtl() throws Exception {
+    void pushSigningConfigAtStartup_WithNullCertificateInfoCacheTtl_PushesRequestWithNullTtl() {
         // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(null);

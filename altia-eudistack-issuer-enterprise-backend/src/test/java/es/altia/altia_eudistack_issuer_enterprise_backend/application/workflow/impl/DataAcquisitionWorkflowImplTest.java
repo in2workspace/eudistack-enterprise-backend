@@ -22,26 +22,24 @@ class DataAcquisitionWorkflowImplTest {
     @InjectMocks
     private DataAcquisitionWorkflowImpl dataAcquisitionWorkflow;
 
-    private final String bearerToken = "Bearer mocked-token";
-
     @Test
     void execute_ShouldExecuteSuccessfully() {
+        // Arrange
+        String bearerToken = "Bearer mocked-token";
         String credentialConfigurationId = "credential-configuration-id";
         String subjectIdentifier = "subject-identifier";
-
         String acquiredData = "mocked-result";
+        String holderEmail = "example@example.example";
+
         when(dataAcquisitionService.acquire(credentialConfigurationId, subjectIdentifier))
                 .thenReturn(acquiredData);
 
-        String holderEmail = "example@example.example";
+        // Act
         dataAcquisitionWorkflow.execute(bearerToken, credentialConfigurationId, subjectIdentifier, holderEmail);
 
-        verify(dataAcquisitionService, times(1))
-                .acquire(credentialConfigurationId, subjectIdentifier);
-
-        verify(issuanceService, times(1))
-                .issueCredential(bearerToken, credentialConfigurationId, acquiredData, holderEmail);
-
+        // Assert
+        verify(dataAcquisitionService).acquire(credentialConfigurationId, subjectIdentifier);
+        verify(issuanceService).issueCredential(bearerToken, credentialConfigurationId, acquiredData, holderEmail);
         verifyNoMoreInteractions(dataAcquisitionService, issuanceService);
     }
 }

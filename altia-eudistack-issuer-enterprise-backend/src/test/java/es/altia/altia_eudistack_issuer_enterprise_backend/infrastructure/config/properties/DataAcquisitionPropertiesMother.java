@@ -23,18 +23,4 @@ final class DataAcquisitionPropertiesMother {
         );
     }
 
-    static DataAcquisitionProperties.Source minimalSourceWithNulls() {
-        return new DataAcquisitionProperties.Source(
-                "LEARCredentialEmployee",
-                DataAcquisitionProperties.SourceType.MOCK,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-    }
 }

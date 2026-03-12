@@ -1,6 +1,5 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.rest;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,30 +14,27 @@ import org.springframework.mock.http.client.MockClientHttpRequest;
 import java.io.IOException;
 import java.net.URI;
 
+import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OutgoingRequestLoggingInterceptorTest {
 
     private static final byte[] BODY = "{\"key\":\"value\"}".getBytes();
 
-    private OutgoingRequestLoggingInterceptor interceptor;
+    private final OutgoingRequestLoggingInterceptor interceptor = new OutgoingRequestLoggingInterceptor();
 
     @Mock
     private ClientHttpRequestExecution execution;
 
-    @BeforeEach
-    void setUp() {
-        interceptor = new OutgoingRequestLoggingInterceptor();
-    }
+    @Mock
+    private ClientHttpResponse response;
 
     @Test
     void Intercept_RequestExecutionSucceeds_ReturnsResponse() throws IOException {
         // Arrange
         HttpRequest request = buildRequest();
-        ClientHttpResponse response = mock(ClientHttpResponse.class);
 
         when(execution.execute(request, BODY)).thenReturn(response);
         when(response.getStatusCode()).thenReturn(HttpStatus.OK);
@@ -46,11 +42,15 @@ class OutgoingRequestLoggingInterceptorTest {
         // Act
         ClientHttpResponse result = interceptor.intercept(request, BODY, execution);
 
-        // Assert
-        assertThat(result).isSameAs(response);
+        try (result) {
+            // Assert
+            assertThat(result).isSameAs(response);
 
-        verify(execution).execute(request, BODY);
-        verify(response).getStatusCode();
+            verify(execution).execute(request, BODY);
+            verify(response).getStatusCode();
+        }
+
+        verify(response).close();
         verifyNoMoreInteractions(execution, response);
     }
 
