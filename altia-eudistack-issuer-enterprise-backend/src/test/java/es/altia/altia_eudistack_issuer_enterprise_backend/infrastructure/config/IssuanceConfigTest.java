@@ -67,6 +67,24 @@ class IssuanceConfigTest {
         verifyNoMoreInteractions(signingConfigHttpClient);
     }
 
+    @Test
+    void pushSigningConfigAtStartup_WhenHttpClientThrows_DoesNotPropagateException() {
+        // Arrange
+        mockCommonConfiguration();
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
+        doThrow(new RuntimeException("boom"))
+                .when(signingConfigHttpClient)
+                .executeSigningConfigRequest(any(SigningConfigPushRequest.class));
+
+        // Act
+        ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
+
+        // Assert
+        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
+        verify(signingConfigHttpClient).executeSigningConfigRequest(any(SigningConfigPushRequest.class));
+        verifyNoMoreInteractions(signingConfigHttpClient);
+    }
+
     private void mockCommonConfiguration() {
         when(signatureConfig.getProvider()).thenReturn("csc-sign-hash");
         when(remoteSignatureConfig.getRemoteSignatureType()).thenReturn("cloud");
