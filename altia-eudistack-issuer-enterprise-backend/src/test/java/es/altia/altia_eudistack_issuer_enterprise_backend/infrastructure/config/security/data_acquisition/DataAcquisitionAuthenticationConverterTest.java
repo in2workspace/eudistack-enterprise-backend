@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -19,13 +20,16 @@ class DataAcquisitionAuthenticationConverterTest {
     @Mock
     private HttpServletRequest request;
 
+    private final DataAcquisitionAuthenticationConverter converter =
+            new DataAcquisitionAuthenticationConverter();
+
     @Test
     void Convert_AuthorizationHeaderContainsBearerToken_ReturnsPreAuthenticatedAuthenticationToken() {
         // Arrange
-        when(request.getHeader("Authorization")).thenReturn("Bearer test-token");
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer test-token");
 
         // Act
-        Authentication authentication = new DataAcquisitionAuthenticationConverter().convert(request);
+        Authentication authentication = converter.convert(request);
 
         // Assert
         assertThat(authentication)
@@ -37,10 +41,10 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderIsMissing_ThrowsBadCredentialsException() {
         // Arrange
-        when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
 
         // Act & Assert
-        assertThatThrownBy(() -> new DataAcquisitionAuthenticationConverter().convert(request))
+        assertThatThrownBy(() -> converter.convert(request))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid Bearer token");
     }
@@ -48,10 +52,10 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderDoesNotStartWithBearerPrefix_ThrowsBadCredentialsException() {
         // Arrange
-        when(request.getHeader("Authorization")).thenReturn("Basic abc123");
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic abc123");
 
         // Act & Assert
-        assertThatThrownBy(() -> new DataAcquisitionAuthenticationConverter().convert(request))
+        assertThatThrownBy(() -> converter.convert(request))
                 .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("Invalid Bearer token");
     }
@@ -59,10 +63,10 @@ class DataAcquisitionAuthenticationConverterTest {
     @Test
     void Convert_AuthorizationHeaderContainsOnlyBearerPrefix_ReturnsEmptyToken() {
         // Arrange
-        when(request.getHeader("Authorization")).thenReturn("Bearer ");
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer ");
 
         // Act
-        Authentication authentication = new DataAcquisitionAuthenticationConverter().convert(request);
+        Authentication authentication = converter.convert(request);
 
         // Assert
         assertThat(authentication).isInstanceOf(PreAuthenticatedAuthenticationToken.class);

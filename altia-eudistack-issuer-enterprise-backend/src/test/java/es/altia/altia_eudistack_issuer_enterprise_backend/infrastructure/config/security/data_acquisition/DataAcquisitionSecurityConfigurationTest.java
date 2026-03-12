@@ -13,27 +13,24 @@ class DataAcquisitionSecurityConfigurationTest {
 
     @Test
     void DataAcquisitionAuthenticationConverter_ConfigurationIsInitialized_ReturnsConverter() {
-        // Arrange
-
         // Act
         DataAcquisitionAuthenticationConverter converter =
                 configuration.dataAcquisitionAuthenticationConverter();
 
         // Assert
-        assertThat(converter).isInstanceOf(DataAcquisitionAuthenticationConverter.class);
+        assertThat(converter)
+                .isInstanceOf(DataAcquisitionAuthenticationConverter.class);
     }
 
     @Test
     void DataAcquisitionIssuanceAuthenticationProvider_ConfigurationIsInitialized_ReturnsProvider() {
-        // Arrange
-
         // Act
         DataAcquisitionIssuanceAuthenticationProvider provider =
                 configuration.dataAcquisitionIssuanceAuthenticationProvider();
 
         // Assert
-        assertThat(provider).isNotNull();
-        assertThat(provider).isInstanceOf(DataAcquisitionIssuanceAuthenticationProvider.class);
+        assertThat(provider)
+                .isInstanceOf(DataAcquisitionIssuanceAuthenticationProvider.class);
     }
 
     @Test
@@ -47,7 +44,8 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionIssuanceAuthenticationManager(provider);
 
         // Assert
-        assertThat(manager).isInstanceOf(ProviderManager.class);
+        assertThat(manager)
+                .isInstanceOf(ProviderManager.class);
     }
 
     @Test
@@ -57,6 +55,7 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionIssuanceAuthenticationManager(
                         new DataAcquisitionIssuanceAuthenticationProvider()
                 );
+
         DataAcquisitionAuthenticationConverter converter =
                 configuration.dataAcquisitionAuthenticationConverter();
 
@@ -65,6 +64,7 @@ class DataAcquisitionSecurityConfigurationTest {
                 configuration.dataAcquisitionIssuanceAuthenticationFilter(manager, converter);
 
         // Assert
-        assertThat(filter).isInstanceOf(DataAcquisitionAuthenticationFilter.class);
+        assertThat(filter)
+                .isInstanceOf(DataAcquisitionAuthenticationFilter.class);
     }
 }

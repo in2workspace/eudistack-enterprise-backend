@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -78,7 +79,7 @@ class DataAcquisitionAuthenticationFilterTest {
         failureHandler.onAuthenticationFailure(
                 request,
                 response,
-                new org.springframework.security.authentication.BadCredentialsException("Invalid token")
+                new BadCredentialsException("Invalid token")
         );
 
         // Assert

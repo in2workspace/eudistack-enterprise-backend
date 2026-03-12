@@ -39,20 +39,17 @@ class MockDataAcquisitionAdapterTest {
         when(dataAcquisitionConfiguration.sourcesByCredentialConfigurationId())
                 .thenReturn(Map.of(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, mockSource()));
 
+        JsonNode expected = objectMapper.valueToTree(expectedAcquireResult());
+
         // Act
         String result = adapter.acquire(SUPPORTED_CREDENTIAL_CONFIGURATION_ID, "subject-123");
 
         // Assert
-        JsonNode root = objectMapper.readTree(result);
-
-        Map<String, Object> actual = objectMapper.convertValue(
-                root,
-                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {}
-        );
+        JsonNode actual = objectMapper.readTree(result);
 
         assertThat(actual)
                 .usingRecursiveComparison()
-                .isEqualTo(expectedAcquireResult());
+                .isEqualTo(expected);
     }
 
     @Test

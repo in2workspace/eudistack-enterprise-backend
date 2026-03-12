@@ -20,7 +20,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.stream.Stream;
 
 import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,9 +88,9 @@ class DataAcquisitionControllerTest {
                         .content(requestBody))
                 .andExpect(status().isNoContent());
 
-        then(dataAcquisitionWorkflow).should()
+        verify(dataAcquisitionWorkflow)
                 .execute(BEARER_TOKEN, "employee_badge", "subject-123", "user@example.com");
-        then(dataAcquisitionWorkflow).shouldHaveNoMoreInteractions();
+        verifyNoMoreInteractions(dataAcquisitionWorkflow);
     }
 
     @Test
@@ -100,9 +101,9 @@ class DataAcquisitionControllerTest {
                         .content(requestBody))
                 .andExpect(status().isNoContent());
 
-        then(dataAcquisitionWorkflow).should()
+        verify(dataAcquisitionWorkflow)
                 .execute(BEARER_TOKEN, "employee_badge", "subject-123", null);
-        then(dataAcquisitionWorkflow).shouldHaveNoMoreInteractions();
+        verifyNoMoreInteractions(dataAcquisitionWorkflow);
     }
 
     @Test
@@ -114,7 +115,7 @@ class DataAcquisitionControllerTest {
                         .content(requestBody))
                 .andExpect(status().isForbidden());
 
-        then(dataAcquisitionWorkflow).shouldHaveNoInteractions();
+        verifyNoMoreInteractions(dataAcquisitionWorkflow);
     }
 
     @ParameterizedTest
@@ -124,7 +125,7 @@ class DataAcquisitionControllerTest {
                         .content(requestBody))
                 .andExpect(status().isBadRequest());
 
-        then(dataAcquisitionWorkflow).shouldHaveNoInteractions();
+        verifyNoMoreInteractions(dataAcquisitionWorkflow);
     }
 
     @Test
@@ -132,7 +133,7 @@ class DataAcquisitionControllerTest {
         mockMvc.perform(acquireDataRequest())
                 .andExpect(status().isBadRequest());
 
-        then(dataAcquisitionWorkflow).shouldHaveNoInteractions();
+        verifyNoMoreInteractions(dataAcquisitionWorkflow);
     }
 
     private String validRequestBody() throws JsonProcessingException {
