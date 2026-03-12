@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
 
 @Slf4j
-@Profile("dev")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(DATA_ACQUISITION_PATH)
