@@ -19,10 +19,6 @@ class SecurityConfigTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // TODO remove when the push of signing config doesn't break app initialization
-    @MockitoBean
-    private SigningConfigHttpClient signingConfigHttpClient;
-
     @Test
     void SecurityFilterChain_DataAcquisitionPostRequestWithoutAuthentication_ReturnsUnauthorized() throws Exception {
         mockMvc.perform(post(DATA_ACQUISITION_PATH))

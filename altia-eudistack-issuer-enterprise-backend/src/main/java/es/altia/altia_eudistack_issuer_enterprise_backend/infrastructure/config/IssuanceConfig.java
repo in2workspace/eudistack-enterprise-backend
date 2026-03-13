@@ -6,6 +6,8 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.rest.Si
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class IssuanceConfig {
 
+    private final ApplicationContext applicationContext;
     private final SigningConfigHttpClient signingConfigHttpClient;
     private final SignatureConfig signatureConfig;
     private final RemoteSignatureConfig remoteSignatureConfig;
@@ -24,10 +27,26 @@ public class IssuanceConfig {
             String provider = signatureConfig.getProvider();
             log.info("Enterprise starting. Selected signing provider: {}", provider);
 
-            SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
-            signingConfigHttpClient.executeSigningConfigRequest(request);
-            log.info("Signing config pushed to Core");
+            try {
+                SigningConfigPushRequest request = getSigningConfigPushRequest(provider);
+                signingConfigHttpClient.executeSigningConfigRequest(request);
+                log.info("Signing config pushed to Core");
+            } catch (Exception ex) {
+                finishApplication("push signing config to Core", ex);
+            }
         };
+    }
+
+    private void finishApplication(String step, Throwable error) {
+        log.error("Error in {}: {}", step, error.getMessage(), error);
+
+        int exitCode = SpringApplication.exit(applicationContext, () -> 1);
+        log.info("Application exiting with code {}", exitCode);
+        exitApplication(exitCode);
+    }
+
+    void exitApplication(int exitCode) {
+        System.exit(exitCode);
     }
 
     private SigningConfigPushRequest getSigningConfigPushRequest(String provider) {
