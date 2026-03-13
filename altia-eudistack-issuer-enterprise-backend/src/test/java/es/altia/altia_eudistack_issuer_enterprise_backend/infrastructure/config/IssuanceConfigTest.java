@@ -7,17 +7,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 
 import java.time.Duration;
 
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IssuanceConfigTest {
+
+    @Mock
+    private ApplicationContext applicationContext;
 
     @Mock
     private SigningConfigHttpClient signingConfigHttpClient;
@@ -32,16 +43,14 @@ class IssuanceConfigTest {
     private IssuanceConfig issuanceConfig;
 
     @Test
-    void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully(){
-        // Arrange
+    void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully() {
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
 
-        // Act
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
-        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
 
-        // Assert
+        assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
+
         SigningConfigPushRequest request = captureSentRequest();
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
@@ -51,20 +60,44 @@ class IssuanceConfigTest {
 
     @Test
     void pushSigningConfigAtStartup_WithNullCertificateInfoCacheTtl_PushesRequestWithNullTtl() {
-        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(null);
 
-        // Act
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
-        assertThatCode(() -> runner.run(null)).doesNotThrowAnyException();
 
-        // Assert
+        assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
+
         SigningConfigPushRequest request = captureSentRequest();
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
         assertThat(request.remoteSignature().certificateInfoCacheTtl()).isNull();
         verifyNoMoreInteractions(signingConfigHttpClient);
+    }
+
+    @Test
+    void pushSigningConfigAtStartup_WhenPushFails_ClosesApplication() throws Exception {
+        mockCommonConfiguration();
+        when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
+        doThrow(new RuntimeException("Core unavailable"))
+                .when(signingConfigHttpClient)
+                .executeSigningConfigRequest(any(SigningConfigPushRequest.class));
+
+        IssuanceConfig spyIssuanceConfig = spy(issuanceConfig);
+        doNothing().when(spyIssuanceConfig).exitApplication(anyInt());
+
+        try (MockedStatic<SpringApplication> springApplicationMock = mockStatic(SpringApplication.class)) {
+            springApplicationMock
+                    .when(() -> SpringApplication.exit(eq(applicationContext), any(ExitCodeGenerator.class)))
+                    .thenReturn(1);
+
+            ApplicationRunner runner = spyIssuanceConfig.pushSigningConfigAtStartup();
+
+            assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
+
+            verify(spyIssuanceConfig).exitApplication(1);
+            springApplicationMock.verify(() ->
+                    SpringApplication.exit(eq(applicationContext), any(ExitCodeGenerator.class)));
+        }
     }
 
     private void mockCommonConfiguration() {
