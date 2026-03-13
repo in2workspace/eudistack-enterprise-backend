@@ -44,13 +44,16 @@ class IssuanceConfigTest {
 
     @Test
     void pushSigningConfigAtStartup_WithCertificateInfoCacheTtl_PushesRequestSuccessfully() {
+        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
 
+        // Act
         assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
 
+        // Assert
         SigningConfigPushRequest request = captureSentRequest();
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
@@ -60,13 +63,16 @@ class IssuanceConfigTest {
 
     @Test
     void pushSigningConfigAtStartup_WithNullCertificateInfoCacheTtl_PushesRequestWithNullTtl() {
+        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(null);
 
         ApplicationRunner runner = issuanceConfig.pushSigningConfigAtStartup();
 
+        // Act
         assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
 
+        // Assert
         SigningConfigPushRequest request = captureSentRequest();
         assertCommonRequestFields(request);
         assertRemoteSignatureFields(request);
@@ -76,6 +82,7 @@ class IssuanceConfigTest {
 
     @Test
     void pushSigningConfigAtStartup_WhenPushFails_ClosesApplication() throws Exception {
+        // Arrange
         mockCommonConfiguration();
         when(remoteSignatureConfig.getCertificateInfoCacheTtl()).thenReturn(Duration.ofMinutes(10));
         doThrow(new RuntimeException("Core unavailable"))
@@ -92,8 +99,10 @@ class IssuanceConfigTest {
 
             ApplicationRunner runner = spyIssuanceConfig.pushSigningConfigAtStartup();
 
+            // Act
             assertThatCode(() -> runner.run(mock(ApplicationArguments.class))).doesNotThrowAnyException();
 
+            // Assert
             verify(spyIssuanceConfig).exitApplication(1);
             springApplicationMock.verify(() ->
                     SpringApplication.exit(eq(applicationContext), any(ExitCodeGenerator.class)));
