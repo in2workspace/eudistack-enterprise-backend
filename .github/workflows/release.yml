@@ -21,6 +21,10 @@ jobs:
       group: docker-${{ github.head_ref || github.ref_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: stg
+      APP_NAME: issuer-enterprise
+      REGION_CODE: ew1
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -59,7 +63,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
           SNAPSHOT_SUFFIX: ${{ env.SNAPSHOT_SUFFIX }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPOSITORY: eudistack-${{ env.ENVIRONMENT }}-ecr-${{ env.REGION_CODE }}-${{ env.APP_NAME }}
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
           set -euo pipefail
@@ -73,6 +77,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: stg
+      APP_NAME: issuer-enterprise
+      REGION_CODE: ew1
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -107,7 +115,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPOSITORY: eudistack-${{ env.ENVIRONMENT }}-ecr-${{ env.REGION_CODE }}-${{ env.APP_NAME }}
         run: |
           set -euo pipefail
           TAG="v${VERSION}"          
