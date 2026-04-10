@@ -2,11 +2,9 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
     types: [ opened, synchronize, reopened ]
 
 permissions:
@@ -47,7 +45,6 @@ jobs:
       - name: Compute PR-based snapshot suffix
         run: echo "SNAPSHOT_SUFFIX=-pr-${{ github.event.number }}" >> $GITHUB_ENV
 
-      # Logins
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -70,13 +67,14 @@ jobs:
           TAG="v${VERSION}${SNAPSHOT_SUFFIX}-enterprise"
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}"
 
-          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend         
+          docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend
           docker push "${ECR_IMAGE}"
 
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
     runs-on: ubuntu-latest
+    environment: stg
     env:
       ENVIRONMENT: stg
       APP_NAME: issuer-enterprise
@@ -96,11 +94,21 @@ jobs:
         working-directory: altia-eudistack-issuer-enterprise-backend
         run: chmod +x ./gradlew
 
-      - name: Extract version from tag
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      - name: Get Project Version
+        working-directory: altia-eudistack-issuer-enterprise-backend
+        run: echo "VERSION=$(./gradlew -q properties | grep '^version:' | awk '{print $2}')" >> $GITHUB_ENV
 
-      # Logins
+      - name: Check if release already exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "v${VERSION}" > /dev/null 2>&1; then
+            echo "::notice::Release v${VERSION} already exists — skipping."
+            echo "SKIP_RELEASE=true" >> $GITHUB_ENV
+          fi
+
       - name: Configure AWS credentials
+        if: env.SKIP_RELEASE != 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -108,21 +116,23 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
+        if: env.SKIP_RELEASE != 'true'
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push docker image (ECR)
+        if: env.SKIP_RELEASE != 'true'
         env:
           VERSION: ${{ env.VERSION }}
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
           ECR_REPOSITORY: eudistack-${{ env.ENVIRONMENT }}-ecr-${{ env.REGION_CODE }}-${{ env.APP_NAME }}
         run: |
           set -euo pipefail
-          TAG="v${VERSION}"          
-              
+          TAG="v${VERSION}"
+
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${TAG}"
           ECR_LATEST="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
-          
+
           docker build -f altia-eudistack-issuer-enterprise-backend/Dockerfile --build-arg SKIP_TESTS=true -t "${ECR_IMAGE}" altia-eudistack-issuer-enterprise-backend
 
           docker tag "${ECR_IMAGE}" "${ECR_LATEST}"
@@ -131,8 +141,19 @@ jobs:
           docker push "${ECR_LATEST}"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v${{ env.VERSION }}"
-          name: "v${{ env.VERSION }}"
-          generate_release_notes: true
+        if: env.SKIP_RELEASE != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --notes "Release of version v${VERSION}" \
+            --target main
+
+      - name: Trigger deploy to STG
+        if: env.SKIP_RELEASE != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yml -f environment=stg
+          echo "### Deploy triggered" >> $GITHUB_STEP_SUMMARY
