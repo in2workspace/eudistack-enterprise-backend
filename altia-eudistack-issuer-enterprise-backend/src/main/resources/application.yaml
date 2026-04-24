@@ -41,18 +41,5 @@ app:
         retry:
           max-attempts: 3
           backoff: 1s
-  signing:
-    provider:
-    coreUrl:
-  remote-signature:
-    certificate-info-cache-ttl: PT10M
-    type:
-    url:
-    paths:
-      sign-path: "/signature/sign"
-    client-id:
-    client-secret:
-    credential-id:
-    credential-password:
   issuer-core-backend:
     url:
