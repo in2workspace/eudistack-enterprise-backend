@@ -34,8 +34,5 @@ public class DataAcquisitionWorkflowImpl implements DataAcquisitionWorkflow {
 
     private void issueCredential(String bearerToken, String credentialConfigurationId, String subjectIdentifier, String acquiredData, String holderEmail) {
         issuanceService.issueCredential(bearerToken, credentialConfigurationId, acquiredData, holderEmail);
-
-        log.debug("Credential issuance completed successfully [credentialConfigurationId={}, subjectIdentifier={} holderEmail={}]",
-                credentialConfigurationId, subjectIdentifier, holderEmail);
     }
 }
