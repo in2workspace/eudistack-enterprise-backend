@@ -1,9 +1,12 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.infrastructure.config.security;
 
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.infrastructure.config.TestAuditServiceConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static es.altia.altia_eudistack_issuer_enterprise_backend.domain.util.EndpointConstants.DATA_ACQUISITION_PATH;
@@ -12,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Import(TestAuditServiceConfiguration.class)
 class SecurityConfigTest {
 
     @Autowired
