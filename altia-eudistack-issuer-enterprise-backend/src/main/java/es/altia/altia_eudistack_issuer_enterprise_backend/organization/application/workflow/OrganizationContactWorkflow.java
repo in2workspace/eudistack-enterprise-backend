@@ -3,6 +3,8 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.organization.applicat
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.model.ContactUpdateSource;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.model.OrganizationContact;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.service.OrganizationContactService;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.model.AuditEventType;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,7 @@ import java.util.Optional;
 public class OrganizationContactWorkflow {
 
     private final OrganizationContactService organizationContactService;
-    // TODO Task 8: Inject AuditService once it's available
-    // private final AuditService auditService;
+    private final AuditService auditService;
 
     /**
      * Finds the contact email for a given organization.
@@ -164,8 +165,8 @@ public class OrganizationContactWorkflow {
      * </ul>
      * </p>
      * <p>
-     * TODO Task 8: Replace placeholder log with actual AuditService call once audit
-     * event types and service are available.
+     * The audit service implementation is responsible for capturing contextual metadata
+     * (actor, timestamp, tenant, correlation ID) from the current execution context.
      * </p>
      *
      * @param orgId      the organization identifier
@@ -174,24 +175,16 @@ public class OrganizationContactWorkflow {
      * @param source     the source of the update
      */
     private void emitAuditEvent(String orgId, OrganizationContact oldContact, OrganizationContact newContact, ContactUpdateSource source) {
-        String eventType = switch (source) {
-            case MANUAL -> "ORGANIZATION_CONTACT_UPDATED";
-            case AUTO_PREFILL -> "ORGANIZATION_CONTACT_AUTO_PREFILLED";
+        AuditEventType eventType = switch (source) {
+            case MANUAL -> AuditEventType.ORGANIZATION_CONTACT_UPDATED;
+            case AUTO_PREFILL -> AuditEventType.ORGANIZATION_CONTACT_AUTO_PREFILLED;
         };
 
         String oldEmail = oldContact != null ? oldContact.email() : null;
         String newEmail = newContact.email();
 
-        log.info("Audit event: {} for organization: {} (old: {}, new: [REDACTED])",
-                eventType, orgId, oldEmail != null ? "[REDACTED]" : "null");
+        log.debug("Emitting audit event: {} for organization: {}", eventType, orgId);
 
-        // TODO Task 8: Replace with actual audit service call
-        // auditService.record(AuditEvent.builder()
-        //     .type(AuditEventType.valueOf(eventType))
-        //     .organizationId(orgId)
-        //     .oldValue(oldEmail)
-        //     .newValue(newEmail)
-        //     .source(source)
-        //     .build());
+        auditService.recordOrganizationContactEvent(eventType, orgId, oldEmail, newEmail);
     }
 }
