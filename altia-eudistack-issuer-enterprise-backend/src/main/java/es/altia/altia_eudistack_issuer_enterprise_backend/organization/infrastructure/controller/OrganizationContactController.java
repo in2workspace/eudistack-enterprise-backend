@@ -3,6 +3,7 @@ package es.altia.altia_eudistack_issuer_enterprise_backend.organization.infrastr
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.application.workflow.OrganizationContactWorkflow;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.model.ContactUpdateSource;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.model.OrganizationContact;
+import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.service.OrganizationAuthorizationService;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.infrastructure.controller.dto.OrganizationContactResponse;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.infrastructure.controller.dto.UpdateOrganizationContactRequest;
 import es.altia.altia_eudistack_issuer_enterprise_backend.shared.infrastructure.config.TenantFeatureFlags;
@@ -48,6 +49,7 @@ public class OrganizationContactController {
 
     private final OrganizationContactWorkflow workflow;
     private final TenantFeatureFlags tenantFeatureFlags;
+    private final OrganizationAuthorizationService authorizationService;
 
     /**
      * GET /api/v1/organizations/{id}/contact
@@ -122,18 +124,13 @@ public class OrganizationContactController {
      * Covers:
      * <ul>
      *   <li>AC-02: Update organization contact + emit audit event</li>
-     *   <li>AC-03: SoD enforcement (Caso A admin read-only → 403) [TODO Task 11]</li>
+     *   <li>AC-03: SoD enforcement (Caso A admin read-only → 403)</li>
      *   <li>AC-04: Feature flag gating (404 if disabled)</li>
      *   <li>AC-06: Tenant isolation (via repository schema-per-tenant)</li>
      *   <li>ES-01: Email validation (via @Email annotation on request DTO → 400 if invalid)</li>
      *   <li>ES-02: Organization not found → 404</li>
-     *   <li>ES-03: No write capability → 403 [TODO Task 11]</li>
+     *   <li>ES-03: No write capability → 403</li>
      * </ul>
-     * </p>
-     * <p>
-     * Note: Authorization check for write capability (canWrite) is pending implementation
-     * in Task 11. Currently, this endpoint enforces feature flag and tenant isolation only.
-     * A TODO placeholder is present in the code to mark where the canWrite check should be added.
      * </p>
      *
      * @param id      the organization identifier (e.g., VATES-A12345678)
@@ -153,14 +150,14 @@ public class OrganizationContactController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        // TODO Task 11: AC-03, ES-03 — Authorization check for write capability
-        // If the current user does NOT have write capability (e.g., Caso A admin multi-org read-only),
-        // return 403 Forbidden here.
-        // Example (to be implemented in Task 11):
-        // if (!authorizationService.canWrite(id)) {
-        //     log.warn("User lacks write capability for organization: {}", id);
-        //     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        // }
+        // AC-03, ES-03: Authorization check for write capability
+        // Caso A (multi-org tenant admin, read-only) → 403 Forbidden
+        // Caso B (single-org tenant admin) → permitted
+        // Caso C (organization operator) → permitted
+        if (!authorizationService.canWrite(id)) {
+            log.warn("User lacks write capability for organization: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         // AC-02: Update contact + audit
         // The workflow orchestrates persistence + audit event emission
