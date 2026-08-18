@@ -38,6 +38,7 @@ public class TestAuditServiceConfiguration {
             public void recordOrganizationContactEvent(
                     AuditEventType eventType,
                     String organizationId,
+                    String actor,
                     String oldValue,
                     String newValue) {
                 // No-op: audit events are not verified in these tests

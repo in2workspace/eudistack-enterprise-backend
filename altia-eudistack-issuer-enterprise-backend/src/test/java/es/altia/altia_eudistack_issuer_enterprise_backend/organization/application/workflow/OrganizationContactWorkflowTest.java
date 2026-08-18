@@ -4,6 +4,7 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.mo
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.model.OrganizationContact;
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.service.OrganizationContactService;
 import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.AuditService;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.CallerIdentityResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for {@link OrganizationContactWorkflow}.
  *
- * @since EUD-226 (Task 15)
+ * @since EUD-226 (Task 15, updated Task 31)
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrganizationContactWorkflow")
@@ -34,17 +35,21 @@ class OrganizationContactWorkflowTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private CallerIdentityResolver callerIdentityResolver;
+
     @InjectMocks
     private OrganizationContactWorkflow workflow;
 
     private static final String ORG_ID = "org-123";
     private static final String EMAIL = "contact@example.com";
+    private static final String ACTOR = "VATES-A15456585";
     private static final OrganizationContact CONTACT = new OrganizationContact(EMAIL);
 
     @BeforeEach
     void setUp() {
         // Reset mocks before each test
-        reset(contactService, auditService);
+        reset(contactService, auditService, callerIdentityResolver);
     }
 
     @Test
@@ -79,14 +84,15 @@ class OrganizationContactWorkflowTest {
     }
 
     @Test
-    @DisplayName("saveContact updates contact and emits MANUAL audit event (AC-02)")
+    @DisplayName("saveContact updates contact and emits MANUAL audit event with resolved actor (AC-02)")
     void saveContact_manual_updatesAndEmitsAudit() {
         // Given
         OrganizationContact oldContact = new OrganizationContact("old@example.com");
         when(contactService.findContactByOrganizationId(ORG_ID))
                 .thenReturn(Optional.of(oldContact));
+        when(callerIdentityResolver.resolveActor()).thenReturn(Optional.of(ACTOR));
         doNothing().when(contactService).saveContact(any(), any(), any());
-        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any());
+        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any(), any());
 
         // When
         workflow.saveContact(ORG_ID, CONTACT, ContactUpdateSource.MANUAL);
@@ -96,19 +102,20 @@ class OrganizationContactWorkflowTest {
         verify(auditService).recordOrganizationContactEvent(
                 eq(es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.model.AuditEventType.ORGANIZATION_CONTACT_UPDATED),
                 eq(ORG_ID),
+                eq(ACTOR),
                 eq("old@example.com"),
                 eq(EMAIL)
         );
     }
 
     @Test
-    @DisplayName("saveContact emits AUTO_PREFILL audit event when source is AUTO_PREFILL (AC-05)")
+    @DisplayName("saveContact emits AUTO_PREFILL audit event attributed to the system actor (AC-05)")
     void saveContact_autoPrefill_emitsCorrectAuditEvent() {
         // Given
         when(contactService.findContactByOrganizationId(ORG_ID))
                 .thenReturn(Optional.empty());
         doNothing().when(contactService).saveContact(any(), any(), any());
-        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any());
+        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any(), any());
 
         // When
         workflow.saveContact(ORG_ID, CONTACT, ContactUpdateSource.AUTO_PREFILL);
@@ -118,9 +125,11 @@ class OrganizationContactWorkflowTest {
         verify(auditService).recordOrganizationContactEvent(
                 eq(es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.model.AuditEventType.ORGANIZATION_CONTACT_AUTO_PREFILLED),
                 eq(ORG_ID),
+                eq("system"),
                 eq(null), // no old email
                 eq(EMAIL)
         );
+        verifyNoInteractions(callerIdentityResolver);
     }
 
     @Test
@@ -168,7 +177,7 @@ class OrganizationContactWorkflowTest {
         when(contactService.findContactByOrganizationId(ORG_ID))
                 .thenReturn(Optional.empty()); // Return empty for both calls
         doNothing().when(contactService).saveContact(any(), any(), any());
-        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any());
+        doNothing().when(auditService).recordOrganizationContactEvent(any(), any(), any(), any(), any());
 
         // When
         workflow.autoPrefillContactIfAbsent(ORG_ID, EMAIL);

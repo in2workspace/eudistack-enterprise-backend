@@ -5,6 +5,7 @@ import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.mo
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.service.OrganizationContactService;
 import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.model.AuditEventType;
 import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.AuditService;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.CallerIdentityResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,8 +38,11 @@ import java.util.Optional;
 @Slf4j
 public class OrganizationContactWorkflow {
 
+    private static final String SYSTEM_ACTOR = "system";
+
     private final OrganizationContactService organizationContactService;
     private final AuditService auditService;
+    private final CallerIdentityResolver callerIdentityResolver;
 
     /**
      * Finds the contact email for a given organization.
@@ -182,9 +186,26 @@ public class OrganizationContactWorkflow {
 
         String oldEmail = oldContact != null ? oldContact.email() : null;
         String newEmail = newContact.email();
+        String actor = resolveActor(source);
 
-        log.debug("Emitting audit event: {} for organization: {}", eventType, orgId);
+        log.debug("Emitting audit event: {} for organization: {} (actor: {})", eventType, orgId, actor);
 
-        auditService.recordOrganizationContactEvent(eventType, orgId, oldEmail, newEmail);
+        auditService.recordOrganizationContactEvent(eventType, orgId, actor, oldEmail, newEmail);
+    }
+
+    /**
+     * Resolves the actor to record in the audit trail (AC-02 "quien").
+     * <p>
+     * AUTO_PREFILL updates are attributed to the system (no interactive caller);
+     * MANUAL updates are attributed to the authenticated caller's organization
+     * identifier, resolved the same way {@code MinimalAuthorizationServiceImpl}
+     * resolves caller identity, so this logic is not duplicated across classes.
+     * </p>
+     */
+    private String resolveActor(ContactUpdateSource source) {
+        if (source == ContactUpdateSource.AUTO_PREFILL) {
+            return SYSTEM_ACTOR;
+        }
+        return callerIdentityResolver.resolveActor().orElse(null);
     }
 }

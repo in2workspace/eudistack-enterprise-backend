@@ -25,9 +25,8 @@ public interface AuditService {
      * Records an audit event for an organization contact update.
      * <p>
      * This method is invoked by application workflows (e.g., OrganizationContactWorkflow)
-     * after a successful state change. The audit service implementation is responsible
-     * for capturing contextual metadata (e.g., actor, timestamp, tenant) from the current
-     * execution context (SecurityContext / Reactor Context).
+     * after a successful state change. Implementations are responsible for persisting the
+     * event durably along with a timestamp captured at write time.
      * </p>
      * <p>
      * For EUD-226, this method supports two event types:
@@ -39,12 +38,16 @@ public interface AuditService {
      *
      * @param eventType      the type of audit event, must not be null
      * @param organizationId the organization identifier, must not be null
+     * @param actor          identifies who made the change (caller's organization identifier,
+     *                       or {@code "system"} for automatic prefill), may be null if the
+     *                       actor could not be resolved (recorded as "unknown")
      * @param oldValue       the previous contact email (may be null if none existed)
      * @param newValue       the new contact email, must not be null
      */
     void recordOrganizationContactEvent(
             AuditEventType eventType,
             String organizationId,
+            String actor,
             String oldValue,
             String newValue
     );
