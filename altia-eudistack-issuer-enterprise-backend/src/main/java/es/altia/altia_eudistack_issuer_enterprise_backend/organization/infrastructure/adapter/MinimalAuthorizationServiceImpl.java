@@ -1,30 +1,34 @@
 package es.altia.altia_eudistack_issuer_enterprise_backend.organization.infrastructure.adapter;
 
 import es.altia.altia_eudistack_issuer_enterprise_backend.organization.domain.service.OrganizationAuthorizationService;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.domain.service.CallerIdentityResolver;
+import es.altia.altia_eudistack_issuer_enterprise_backend.shared.infrastructure.config.TenantAdminOrganizationResolver;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
- * Minimal stub implementation of OrganizationAuthorizationService for EUD-226.
+ * Minimal PDP-style implementation of {@link OrganizationAuthorizationService} for EUD-226.
  * <p>
- * This is a temporary adapter that provides basic authorization logic to satisfy
- * AC-03 (segregation of duties) while the full PBAC infrastructure (ADR-F05) is
- * being developed. It currently returns {@code true} for all authorization checks
- * as a permissive fallback, with clear TODOs marking integration points.
- * </p>
- * <p>
- * <b>Scope limitation (EUD-226):</b> Full PBAC implementation is out of scope for
- * this Story. The stub satisfies the hexagonal discipline (domain port exists,
- * infrastructure adapts) without blocking feature delivery. When PBAC is implemented,
- * this class will be replaced with a proper PDP (Policy Decision Point) that:
+ * Resolves the caller's own organization identifier via {@link CallerIdentityResolver}
+ * (bearer token claim {@code mandator.organizationIdentifier}) and applies SRS §3.1:
  * </p>
  * <ul>
- *   <li>Extracts user context from SecurityContext / Reactor Context</li>
- *   <li>Evaluates powers from LEARCredential claims in the access token</li>
- *   <li>Returns {@code false} for Caso A (multi-org admin, read-only)</li>
- *   <li>Returns {@code true} for Caso B/C (single-org admin / operator)</li>
- *   <li>Enforces organization isolation (user can only act on their own org)</li>
+ *   <li>Caso A (caller's org == tenant's {@code admin_organization_id}): {@code false} (SoD, read-only)</li>
+ *   <li>Caso B/C (caller's org == requested {@code organizationId}, not Caso A): {@code true}</li>
+ *   <li>Cross-org (caller's org != requested {@code organizationId}): {@code false}</li>
+ *   <li>Caller identity cannot be resolved: {@code false} (fail closed)</li>
  * </ul>
+ * <p>
+ * <b>Scope limitation (EUD-226, quality-report.md B2/F1 remediation):</b> This still is
+ * not the full PBAC implementation (ADR-F05) — it deliberately trades PBAC's power-based
+ * policy evaluation for a minimal org-identity comparison sufficient to satisfy AC-03,
+ * AC-06 and ES-03. It also inherits the "not cryptographically verified" limitation of
+ * {@link CallerIdentityResolver}'s current implementation — see that interface's
+ * Javadoc and the tech-debt entry tracking the full OAuth2 resource-server buildout.
+ * </p>
  * <p>
  * See {@code docs/_shared/architecture/adr/adr-f05-pbac-over-rbac.md} for the full
  * authorization model.
@@ -32,63 +36,41 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MinimalAuthorizationServiceImpl implements OrganizationAuthorizationService {
 
+    private final CallerIdentityResolver callerIdentityResolver;
+    private final TenantAdminOrganizationResolver tenantAdminOrganizationResolver;
+
     /**
-     * Minimal stub that permits all write operations.
-     * <p>
-     * <b>TODO (PBAC Epic):</b> Replace with real authorization logic:
-     * </p>
-     * <pre>
-     * 1. Extract user context from SecurityContext or Reactor Context:
-     *    - User role (tenant admin vs org operator)
-     *    - Tenant topology (single-org vs multi-org)
-     *    - User's organization ID
+     * Checks whether the current caller has write capability for the specified organization.
      *
-     * 2. Apply SRS §3.1 rules:
-     *    - Caso A (multi-org tenant admin): return false (read-only, SoD)
-     *    - Caso B (single-org tenant admin): return true (read-write)
-     *    - Caso C (org operator): return true if user's org == organizationId
-     *
-     * 3. Enforce organization isolation:
-     *    - Verify user belongs to the requested organization
-     *    - Return false if cross-org access attempt
-     * </pre>
-     * <p>
-     * Integration points:
-     * <ul>
-     *   <li>SecurityContext (Spring Security) — if JWT-based auth is configured</li>
-     *   <li>Reactor Context (WebFlux) — if tenant/user context is propagated reactively</li>
-     *   <li>Custom filter (e.g., DataAcquisitionAuthenticationFilter) — if custom auth exists</li>
-     * </ul>
-     * </p>
-     *
-     * @param organizationId the organization identifier
-     * @return {@code true} (permissive fallback until PBAC is implemented)
+     * @param organizationId the organization identifier from the request path
+     * @return {@code true} only for Caso B/C callers acting on their own organization
      */
     @Override
     public boolean canWrite(String organizationId) {
-        log.debug("Authorization check for organizationId: {} (STUB — always permits)", organizationId);
+        Optional<String> callerOrganizationId = callerIdentityResolver.resolveOrganizationId();
 
-        // TODO (PBAC Epic): Extract user context from SecurityContext / Reactor Context
-        // String userRole = extractUserRole();
-        // String userOrgId = extractUserOrganizationId();
-        // boolean isMultiOrgAdmin = extractIsMultiOrgAdmin();
+        if (callerOrganizationId.isEmpty()) {
+            log.warn("Denying write access: caller organization identifier could not be resolved");
+            return false;
+        }
 
-        // TODO (PBAC Epic): Apply SRS §3.1 authorization rules
-        // if (isMultiOrgAdmin) {
-        //     log.warn("Denying write access for multi-org admin (Caso A, SoD)");
-        //     return false;  // AC-03: Caso A → 403
-        // }
+        String callerOrgId = callerOrganizationId.get();
 
-        // TODO (PBAC Epic): Enforce organization isolation
-        // if (!userOrgId.equals(organizationId)) {
-        //     log.warn("Denying cross-org write attempt: user org={}, requested org={}", userOrgId, organizationId);
-        //     return false;  // AC-06: org isolation
-        // }
+        Optional<String> adminOrganizationId = tenantAdminOrganizationResolver.getAdminOrganizationId();
+        if (adminOrganizationId.isPresent() && adminOrganizationId.get().equals(callerOrgId)) {
+            log.warn("Denying write access for multi-org tenant admin (Caso A, SoD): callerOrg={}", callerOrgId);
+            return false;
+        }
 
-        // Permissive fallback for EUD-226 (allows all write operations)
-        log.debug("Permitting write access (stub fallback)");
+        if (!callerOrgId.equals(organizationId)) {
+            log.warn("Denying cross-org write attempt: callerOrg={}, requestedOrg={}", callerOrgId, organizationId);
+            return false;
+        }
+
+        log.debug("Permitting write access for organizationId: {}", organizationId);
         return true;
     }
 }
