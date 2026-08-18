@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,21 +18,28 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for {@link OrganizationContactController}.
+ * <p>
+ * Runs with the real Spring Security filter chain enabled (EUD-226 / B1, F2, F8): every
+ * request that must reach the controller carries a bearer token accepted by the stub
+ * {@code DataAcquisitionIssuanceAuthenticationProvider} so these tests actually exercise
+ * {@code SecurityConfig}'s authorization rules instead of bypassing them.
+ * </p>
  *
- * @since EUD-226 (Task 16)
+ * @since EUD-226 (Task 16, updated Task 29)
  */
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DisplayName("OrganizationContactController Integration Tests")
 class OrganizationContactControllerIT {
+
+    private static final String VALID_BEARER_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ0ZXN0In0.";
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,7 +65,8 @@ class OrganizationContactControllerIT {
                 .thenReturn(Optional.of(new OrganizationContact(VALID_EMAIL)));
 
         // When & Then
-        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID))
+        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").value(VALID_EMAIL));
@@ -74,7 +83,8 @@ class OrganizationContactControllerIT {
                 .thenReturn(Optional.empty());
 
         // When & Then
-        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID))
+        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email").doesNotExist());
@@ -89,7 +99,8 @@ class OrganizationContactControllerIT {
         when(featureFlags.isOrganizationContactEnabled()).thenReturn(false);
 
         // When & Then
-        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID))
+        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN))
                 .andExpect(status().isNotFound());
 
         verifyNoInteractions(workflow);
@@ -105,6 +116,7 @@ class OrganizationContactControllerIT {
 
         // When & Then
         mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + VALID_EMAIL + "\"}"))
                 .andExpect(status().isNoContent());
@@ -122,6 +134,7 @@ class OrganizationContactControllerIT {
 
         // When & Then
         mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"invalid-email\"}"))
                 .andExpect(status().isBadRequest());
@@ -138,6 +151,7 @@ class OrganizationContactControllerIT {
 
         // When & Then
         mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + VALID_EMAIL + "\"}"))
                 .andExpect(status().isForbidden());
@@ -154,6 +168,7 @@ class OrganizationContactControllerIT {
 
         // When & Then
         mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + VALID_EMAIL + "\"}"))
                 .andExpect(status().isNotFound());
@@ -169,11 +184,34 @@ class OrganizationContactControllerIT {
 
         // When
         mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + VALID_BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + VALID_EMAIL + "\"}"))
                 .andExpect(status().isNotFound());
 
         // Then: authorization not checked when feature disabled (404 before 403)
         verifyNoInteractions(authorizationService);
+    }
+
+    @Test
+    @DisplayName("GET /organizations/{id}/contact without Authorization header returns 401 (B1/F2 regression guard)")
+    void getContact_noAuthorizationHeader_returns401() throws Exception {
+        // When & Then: the security filter chain now rejects the request before it reaches the controller
+        mockMvc.perform(get("/api/v1/organizations/{id}/contact", ORG_ID))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(workflow, featureFlags, authorizationService);
+    }
+
+    @Test
+    @DisplayName("PUT /organizations/{id}/contact without Authorization header returns 401 (B1/F2 regression guard)")
+    void updateContact_noAuthorizationHeader_returns401() throws Exception {
+        // When & Then: the security filter chain now rejects the request before it reaches the controller
+        mockMvc.perform(put("/api/v1/organizations/{id}/contact", ORG_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + VALID_EMAIL + "\"}"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(workflow, featureFlags, authorizationService);
     }
 }

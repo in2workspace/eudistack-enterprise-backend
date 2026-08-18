@@ -67,4 +67,24 @@ class DataAcquisitionSecurityConfigurationTest {
         assertThat(filter)
                 .isInstanceOf(DataAcquisitionAuthenticationFilter.class);
     }
+
+    @Test
+    void DefaultAuthenticationFilter_ManagerAndConverterAreProvided_ReturnsAuthenticationFilter() {
+        // Arrange
+        AuthenticationManager manager =
+                configuration.dataAcquisitionIssuanceAuthenticationManager(
+                        new DataAcquisitionIssuanceAuthenticationProvider()
+                );
+
+        DataAcquisitionAuthenticationConverter converter =
+                configuration.dataAcquisitionAuthenticationConverter();
+
+        // Act
+        DataAcquisitionAuthenticationFilter filter =
+                configuration.defaultAuthenticationFilter(manager, converter);
+
+        // Assert
+        assertThat(filter)
+                .isInstanceOf(DataAcquisitionAuthenticationFilter.class);
+    }
 }
