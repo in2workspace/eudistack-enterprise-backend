@@ -1,0 +1,58 @@
+{
+  "exceptions": [
+    {
+      "purl": "pkg:maven/aopalliance/aopalliance@1.0?type=jar",
+      "license": "Public Domain",
+      "reason": "Transitive dependency with Public Domain license",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-221"
+    },
+    {
+      "purl": "pkg:maven/ch.qos.logback/logback-classic@1.5.25?type=jar",
+      "license": "EPL-1.0, GNU Lesser General Public License",
+      "reason": "Spring Boot logging framework dual licensed",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-221"
+    },
+    {
+      "purl": "pkg:maven/ch.qos.logback/logback-core@1.5.25?type=jar",
+      "license": "EPL-1.0, GNU Lesser General Public License",
+      "reason": "Spring Boot logging framework dual licensed",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-221"
+    },
+    {
+      "purl": "pkg:maven/jakarta.annotation/jakarta.annotation-api@2.1.1?type=jar",
+      "license": "EPL-2.0, GPL-2.0-with-classpath-exception",
+      "reason": "Jakarta API with dual license (EPL / GPL+CPE)",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-219"
+    },
+    {
+      "purl": "pkg:maven/org.hdrhistogram/HdrHistogram@2.2.2?type=jar",
+      "license": "CC0-1.0, BSD-2-Clause",
+      "reason": "Micrometer dependency with dual CC0/BSD license",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-221"
+    },
+    {
+      "purl": "pkg:maven/org.latencyutils/LatencyUtils@2.0.3?type=jar",
+      "license": "CC0-1.0",
+      "reason": "Micrometer latency tracking dependency with CC0-1.0 license",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-17",
+      "expires_on": "2026-11-17",
+      "ticket": "EUD-221"
+    }
+  ]
+}

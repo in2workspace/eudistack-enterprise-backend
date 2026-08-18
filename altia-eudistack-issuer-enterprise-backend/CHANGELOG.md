@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **EUD-220 — SBOM CycloneDX and License Gate**: Added CycloneDX 1.6 SBOM generation (`cyclonedxBom`), aligned `org.owasp.dependencycheck` plugin version, added CI license compliance gate (`license-gate.yml`), and automated SBOM asset attachment to GitHub Releases.
+
 ### Changed
 - Improved GDPR compliance by reducing PII logging.
 
