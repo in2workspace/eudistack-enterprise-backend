@@ -146,6 +146,13 @@ jobs:
         working-directory: altia-eudistack-issuer-enterprise-backend
         run: ./gradlew cyclonedxBom
 
+      - name: Validate SBOM Version
+        if: env.SKIP_RELEASE != 'true'
+        uses: in2workspace/eudistack-platform-dev/.github/actions/license-gate@license-gate-v1.0.0
+        with:
+          sbom-path: altia-eudistack-issuer-enterprise-backend/build/reports/sbom/sbom.json
+          expect-version: ${{ env.VERSION }}
+
       - name: Prepare SBOM Release Asset
         if: env.SKIP_RELEASE != 'true'
         run: |
