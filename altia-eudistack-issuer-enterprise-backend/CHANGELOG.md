@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI — Dependabot para el control de composición de software (SCA)**
+  - Configuración de actualizaciones de seguridad para `gradle`, `github-actions` y las imágenes base de Docker, alineada con `eudistack-core-issuer`. Complementa el escaneo Trivy que ya corre en `pr.yml`: Trivy detecta, Dependabot propone el arreglo.
+
 - **CI — alineación del release gate con el resto de repositorios de código**
   - **Análisis estático (CodeQL)**: nuevo `.github/workflows/codeql.yml` con `languages: java-kotlin` y `queries: security-extended`, ejecutado en push a `main`, en cada PR y en cron semanal (lunes 04:00 UTC).
   - **Analizador de código (SonarCloud)**: plugin `org.sonarqube` 7.2.2.6593 y bloque `sonar { }` en `build.gradle` (projectKey `in2workspace_eudistack-enterprise-backend`), con escaneo y Quality Gate bloqueante en `build.yml`.
