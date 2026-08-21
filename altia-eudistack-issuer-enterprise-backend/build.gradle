@@ -3,10 +3,15 @@ plugins {
     id 'org.springframework.boot' version '3.5.10'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'jacoco'
+    id 'org.sonarqube' version '7.2.2.6593'
 }
 
 group = 'es.altia'
 version = '0.4.0'
+
+jacoco {
+    toolVersion = "0.8.14"
+}
 
 java {
     toolchain {
@@ -76,3 +81,19 @@ tasks.named('jacocoTestReport', JacocoReport) {
     }))
 }
 
+
+// --- Quality & CI ---
+
+sonar {
+    properties {
+        property 'sonar.projectKey', 'in2workspace_eudistack-enterprise-backend'
+        property 'sonar.organization', 'in2workspace'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.sources', 'src/main/java,src/main/resources'
+        property 'sonar.exclusions', 'src/main/resources/**/*.sql'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        property 'sonar.coverage.exclusions',
+                "src/main/java/**/AltiaEudistackIssuerEnterpriseBackendApplication.java, " +
+                        "src/main/java/**/SecurityConfig.java"
+    }
+}
