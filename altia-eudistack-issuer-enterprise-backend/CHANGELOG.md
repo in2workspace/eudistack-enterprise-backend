@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI — Dependabot para el control de composición de software (SCA)**
+  - Configuración de actualizaciones de seguridad para `gradle`, `github-actions` y las imágenes base de Docker, alineada con `eudistack-core-issuer`. Complementa el escaneo Trivy que ya corre en `pr.yml`: Trivy detecta, Dependabot propone el arreglo.
+
+- **CI — alineación del release gate con el resto de repositorios de código**
+  - **Análisis estático (CodeQL)**: nuevo `.github/workflows/codeql.yml` con `languages: java-kotlin` y `queries: security-extended`, ejecutado en push a `main`, en cada PR y en cron semanal (lunes 04:00 UTC).
+  - **Analizador de código (SonarCloud)**: plugin `org.sonarqube` 7.2.2.6593 y bloque `sonar { }` en `build.gradle` (projectKey `in2workspace_eudistack-enterprise-backend`), con escaneo y Quality Gate bloqueante en `build.yml`.
+  - **Cobertura**: publicación del informe JaCoCo en la PR vía `madrapps/jacoco-report` con los umbrales de la convención (40 % global, 60 % ficheros modificados) y subida del HTML como artefacto.
+  - **Composición de software (Trivy)**: escaneo `fs` de `build/libs` con severidad `HIGH,CRITICAL` y `exit-code: 1`, caché de la BD de vulnerabilidades, informe JSON como artefacto y `config/trivy/.trivyignore` para falsos positivos documentados.
+  - El job pasa a llamarse `Build & Test` para que el nombre del check coincida con el del resto de repositorios y pueda exigirse como *required status check* en la protección de `main`.
+
 - **EUD-226 — Gestionar el contacto de la organización para notificaciones del ciclo de vida (US-07)**
   - **REST API (FR-17, AC-01, AC-02)**: New `GET /api/v1/organizations/{id}/contact` and `PUT /api/v1/organizations/{id}/contact` endpoints, registered in `SecurityConfig` with `.authenticated()`. The GET returns `{ email: string | null }` (200 if found or not found — see known limitation below, 403 if no write capability). The PUT accepts `{ email: string }` with Jakarta `@Email` validation (204 on success, 400 on invalid format, 403 if no write capability, 404 if feature disabled or organization not found).
   - **Database schema (FR-17, AC-06)**: Flyway migration adds `contact_email VARCHAR(255) NULL` column to `organization` table, respecting schema-per-tenant isolation.
