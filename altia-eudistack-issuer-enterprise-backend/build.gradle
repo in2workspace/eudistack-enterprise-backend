@@ -54,7 +54,7 @@ dependencies {
     // Unit Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:5.5.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
 
