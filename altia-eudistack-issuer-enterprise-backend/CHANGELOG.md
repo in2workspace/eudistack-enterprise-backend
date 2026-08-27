@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Status:** `/code-review EUD-226` (2026-08-18) returned **APPROVED** for this Story's scope (tender/demo deliverable), with a binding non-deployment condition on the feature flag per the accepted scope boundary above. See `docs/EUD-5-gestion-ciclo-vida-portal/EUD-226/quality-report.md`.
 
 ### Added
-- **EUD-220 — SBOM CycloneDX and License Gate**: Added CycloneDX 1.6 SBOM generation (`cyclonedxBom`), aligned `org.owasp.dependencycheck` plugin version, added CI license compliance gate (`license-gate.yml`), and automated SBOM asset attachment to GitHub Releases.
+- **EUD-220 — SBOM CycloneDX and License Gate**: Added CycloneDX 1.6 SBOM generation (`cyclonedxBom`), aligned `org.owasp.dependencycheck` plugin version, added CI license compliance gate (`license-gate.yml`), and automated SBOM asset attachment to GitHub Releases. The evaluator is vendored at `.github/scripts/license-gate.mjs` with its own `node --test` suite, which the gate workflow runs before evaluating anything: this repository verifies itself without depending on any other one. Free-text upstream license names resolve through a reviewed SPDX equivalence table instead of piling up as expiring exceptions, and the `CODEOWNERS` rules that protect the policy, the exception register and the evaluator sit at the END of the file, because GitHub applies the last matching pattern.
 
 ### Changed
 - Improved GDPR compliance by reducing PII logging.
