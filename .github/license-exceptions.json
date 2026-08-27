@@ -1,0 +1,23 @@
+{
+  "$comment": "Approved license exceptions. Each record requires purl (version-pinned), license, reason, approved_by, approved_on, expires_on (max 180 days) and ticket. Protected by .github/CODEOWNERS. Free-text license names that map to an allowed SPDX id are handled by LICENSE_NAME_NORMALIZATION in the evaluator, NOT here.",
+  "exceptions": [
+    {
+      "purl": "pkg:maven/ch.qos.logback/logback-classic@1.5.25?type=jar",
+      "license": "EPL-1.0, GNU Lesser General Public License",
+      "reason": "Logback 1.5.25 declara EPL-1.0, que no esta en la allowlist. Los otros tres backends ya van en 1.5.32, que declara EPL-2.0 y pasa sin excepcion. La salida es subir la version, no ampliar la politica",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-27",
+      "expires_on": "2026-11-25",
+      "ticket": "EUD-220"
+    },
+    {
+      "purl": "pkg:maven/ch.qos.logback/logback-core@1.5.25?type=jar",
+      "license": "EPL-1.0, GNU Lesser General Public License",
+      "reason": "Ver logback-classic: se resuelve subiendo Logback a 1.5.32",
+      "approved_by": "DevOps Lead",
+      "approved_on": "2026-08-27",
+      "expires_on": "2026-11-25",
+      "ticket": "EUD-220"
+    }
+  ]
+}
