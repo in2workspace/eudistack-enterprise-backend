@@ -75,7 +75,7 @@ jobs:
 
       - name: Publish JaCoCo Coverage
         if: always() && github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.7.1
+        uses: madrapps/jacoco-report@v1.8.0
         with:
           paths: ${{ env.GRADLE_DIR }}/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
