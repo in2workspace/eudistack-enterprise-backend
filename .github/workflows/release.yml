@@ -141,14 +141,32 @@ jobs:
           docker push "${ECR_IMAGE}"
           docker push "${ECR_LATEST}"
 
+      - name: Generate CycloneDX SBOM
+        if: env.SKIP_RELEASE != 'true'
+        working-directory: altia-eudistack-issuer-enterprise-backend
+        run: ./gradlew cyclonedxBom
+
+      - name: Validate the published SBOM
+        if: env.SKIP_RELEASE != 'true'
+        run: node .github/scripts/license-gate.mjs --sbom-path altia-eudistack-issuer-enterprise-backend/build/reports/sbom/sbom.json --expect-version ${{ env.VERSION }}
+
+      - name: Prepare SBOM Release Asset
+        if: env.SKIP_RELEASE != 'true'
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          cp altia-eudistack-issuer-enterprise-backend/build/reports/sbom/sbom.json "./sbom-${TAG}.cdx.json"
+
       - name: Create GitHub Release
         if: env.SKIP_RELEASE != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${VERSION}" \
-            --title "v${VERSION}" \
-            --notes "Release of version v${VERSION}" \
+          TAG="v${VERSION}"
+          gh release create "${TAG}" \
+            "./sbom-${TAG}.cdx.json#CycloneDX SBOM (${TAG})" \
+            --title "${TAG}" \
+            --notes "Release of version ${TAG}" \
             --target main
 
       - name: Trigger deploy to STG
