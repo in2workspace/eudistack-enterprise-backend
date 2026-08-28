@@ -1,4 +1,9 @@
 spring:
+  http:
+    converters:
+      # Kept in sync with src/main/resources/application.yaml: src/test/resources/application.yaml
+      # shadows it entirely on the test classpath rather than merging with it.
+      preferred-json-mapper: jackson2
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     driver-class-name: org.h2.Driver

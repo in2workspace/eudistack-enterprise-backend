@@ -1,6 +1,12 @@
 spring:
   application:
     name: altia-eudistack-issuer-enterprise-backend
+  http:
+    converters:
+      # Spring Boot 4 defaults HTTP message conversion to Jackson 3 (tools.jackson.*); this
+      # codebase's DTOs still use Jackson 2 types (com.fasterxml.jackson.databind.JsonNode,
+      # ObjectMapper), so both MVC and RestClient must serialize/deserialize with Jackson 2.
+      preferred-json-mapper: jackson2
 
 logging:
   level:
