@@ -45,7 +45,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-database-postgresql'
 
     // JWT claims decoding (EUD-226 T30/T31 — unsigned payload decode only, see CallerIdentityResolver)
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.9.1'
 
     // DevTools
     compileOnly 'org.projectlombok:lombok'
